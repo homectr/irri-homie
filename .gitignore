@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+# Platformio files
+.pio
+
+# VSCode Files
+.vscode
