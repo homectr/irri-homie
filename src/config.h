@@ -1,1 +1,9 @@
-#define NUMBER_OF_VALVES  6
+#pragma once
+
+#define LOCAL_CONFIG_FILE   "/config.json"
+
+int initFS();
+int loadConfig();
+int saveConfig();
+
+

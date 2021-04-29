@@ -1,33 +1,27 @@
+#include <Arduino.h>
 #include "Valve.h"
 
-Valve::Valve(uint8_t pin){
-    this->pin = pin;
-    pinMode(pin,OUTPUT);
-
-    this->status = 0;
+Valve::Valve(unsigned char id){
+    this->id = id;
 }
 
 void Valve::close(){
-    digitalWrite(this->pin, 0);
-    this->status = 0;
+    status = 0;
+    if (onClose) onClose(id);
 }
 
-unsigned char Valve::isOpen(){
-  return status==1;
-}
-
-void Valve::open(uint16_t seconds){
+void Valve::open(unsigned int seconds){
     if (seconds == 0) { 
-        this->close();
+        close();
         return;
     }
-    digitalWrite(this->pin, 1);
-    this->runtime = seconds;
-    this->startedAt = millis();
-    this->status = 1;
+    runtime = seconds;
+    openedAt = millis();
+    status = 1;
+    if (onOpen) onOpen(id);
 }
 
 void Valve::loop(){
     if (status == 0) return;
-    if (millis() - this->startedAt > this->runtime) this->close()
+    if (millis() - this->openedAt > this->runtime) this->close();
 }
