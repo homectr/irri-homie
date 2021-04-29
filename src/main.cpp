@@ -12,11 +12,11 @@
 #include "handlersValve.h"
 #include "handlersSys.h"
 
-const unsigned char GPIOS[NUMBER_OF_VALVES] = { 16, 5, 4, 14, 12, 13 };
+unsigned char GPIOS[NUMBER_OF_VALVES] = { 16, 5, 4, 14, 12, 13 };
 const char* optsON = "open OPEN on ON 1";
 const char* optsOFF = "closed CLOSED off OFF 0";
-const String opts = String(optsON) + " " + String(optsOFF);
-const unsigned char negativeOpts = strlen(optsON)+1; // start of negative options
+String opts = String(optsON) + " " + String(optsOFF);
+unsigned char negativeOpts = strlen(optsON)+1; // start of negative options
 
 HomieNode* valve_node;  // node for manipulating irrigation valves
 Valve* valves[NUMBER_OF_VALVES];  // array of valve objects
