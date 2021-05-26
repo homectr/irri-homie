@@ -4,6 +4,9 @@
 #include <errno.h>
 #include <stdio.h>
 
+#define NODEBUG_PRINT
+#include "debug_print.h"
+
 Program::Program(unsigned char id, Valve** v, unsigned char valveCount){
     this->id = id;
 
@@ -29,6 +32,7 @@ void Program::start(){
     currentValve = 0;
     if (onStart) onStart(id);
     valves[0]->open(runTimes[0]*(intensity/100));
+    DEBUG_PRINT("Starting program '%s'. Intensity %d\n",this->getName(), intensity);
 }
 
 void Program::stop(){
@@ -37,6 +41,8 @@ void Program::stop(){
 
     // close all valves on program stop
     for (char i = 0; i<NUMBER_OF_VALVES;i++) valves[i]->close();
+
+    DEBUG_PRINT("Stopping program '%s'\n", this->getName());
 
     if (onStop) onStop(id);
 }
@@ -55,7 +61,9 @@ void Program::loop(){
 
     // if program is not running 
     if (status == 0) {
-        if (shouldStart(now())) start();
+        if (shouldStart(now())) {
+            start();
+        }
         return;
     }
 
@@ -65,6 +73,7 @@ void Program::loop(){
     // if program is running and currentValve is not open means valve reached its runtime
     // get and open next valve
     currentValve++;
+    DEBUG_PRINT("Program '%s' next valve %d.\n",this->getName(), currentValve);
     if (currentValve < NUMBER_OF_VALVES) {
         valves[currentValve]->open(runTimes[currentValve]*(intensity/100));
     } else {
