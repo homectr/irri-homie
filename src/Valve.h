@@ -25,9 +25,13 @@ class Valve {
     public:
         Valve(unsigned char id);
 
-        // open valve for specified time (in seconds)
-        // valve closes automatically afterwards
-        void open(unsigned int seconds);
+        /**
+         * Opens valve for specified time (in minutes). 
+         * Valve closes automatically afterwards
+         * 
+         * @param minutes - number of minutes to keep valve open (max. 120)
+         */
+        void open(unsigned int minutes);
 
         // open valve for time specified in default runtime
         void open(){open(defRunTime);};
