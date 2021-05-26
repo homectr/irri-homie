@@ -41,18 +41,21 @@ void Program::stop(){
     if (onStop) onStop(id);
 }
 
-unsigned char Program::calendarStart() {
-    return now() > disabledTill 
-        && runDays[weekday()-1] 
-        && hour() == startHour 
-        && minute() == startMin;
+/**
+ * returns 1 or 0 if program should start on provided datetime
+ */
+unsigned char Program::shouldStart(time_t datetime) {
+    return datetime > disabledTill 
+        && runDays[weekday(datetime)-1] 
+        && hour(datetime) == startHour 
+        && minute(datetime) == startMin;
 }
 
 void Program::loop(){
 
     // if program is not running 
     if (status == 0) {
-        if (calendarStart()) start();
+        if (shouldStart(now())) start();
         return;
     }
 

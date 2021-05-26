@@ -51,9 +51,6 @@ class Program {
         // callback to be called when program stops
         program_cb_t onStop = NULL;
 
-    private:
-        unsigned char calendarStart();
-
     public:
         Program(unsigned char id, Valve** valves, unsigned char valveCount);
         void start();
@@ -71,5 +68,6 @@ class Program {
         int getRunDays(char* buffer, size_t size);
         unsigned char getStartHour(){return startHour;};
         unsigned char getStartMinute(){return startMin;};
+        unsigned char shouldStart(time_t datetime);
 
 };
