@@ -46,7 +46,6 @@ void setup() {
         valves[i] = new Valve(i);
         valves[i]->setOnOpenCB(onValveOpen);
         valves[i]->setOnCloseCB(onValveClose);
-        // TODO set valve properties from configuration
     }
 
     // create programs
@@ -54,8 +53,6 @@ void setup() {
         programs[i] = new Program(i, valves, NUMBER_OF_VALVES);
         programs[i]->setOnStartCB(onProgramStart);
         programs[i]->setOnStopCB(onProgramStop);
-        // TODO set program properties from configuration
-        // TODO name set handler programs[i]->setName("Program handleProgramStop);    
     }
 
     Homie_setFirmware("Irrigation", "1.0.0");
@@ -81,10 +78,17 @@ void setup() {
 
 }
 
+#define CHECK_INTERVAL  60000;
+unsigned long lastCheck = millis();
+
 void loop() {
     Homie.loop();
+
     if (!configLoaded && Homie.isConfigured() && Homie.isConnected()){
         loadConfig();
         configLoaded = true;
     }
+
+    for (int i=0;i<NUMBER_OF_VALVES;i++) valves[i]->loop();
+    for (int i=0;i<NUMBER_OF_PROGRAMS;i++) programs[i]->loop();
 }
