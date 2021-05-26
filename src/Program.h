@@ -16,7 +16,7 @@ class Program {
         char* name;
 
         // program starting hour
-        unsigned char startHour = 7;
+        unsigned char startHour = 6;
 
         // program starting minute
         unsigned char startMin = 0;
@@ -28,7 +28,7 @@ class Program {
         unsigned char runDays[7] = {0,0,0,0,0,0,0};
 
         // datetime till when this program is disabled and wont start using calendar
-        time_t disabledTill;
+        time_t disabledTill = 0;
         
         // array of pointers to valves
         Valve* valves[];

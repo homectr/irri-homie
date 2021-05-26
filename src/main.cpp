@@ -28,6 +28,8 @@ HomieNode* sys_node;    // node for manipulating irrigation system
 unsigned char sys_intensity = 100;
 time_t sys_disabledTill = 0;
 
+bool configLoaded = false;
+
 void setup() {
     for (uint8_t i = 0; i < NUMBER_OF_VALVES; i++) {
         pinMode(GPIOS[i], OUTPUT);
@@ -77,10 +79,12 @@ void setup() {
 
     Homie.setup();
 
-    loadConfig();
 }
 
 void loop() {
     Homie.loop();
-
+    if (!configLoaded && Homie.isConfigured() && Homie.isConnected()){
+        loadConfig();
+        configLoaded = true;
+    }
 }

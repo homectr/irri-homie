@@ -30,7 +30,8 @@ If run time is e.g. 10 minutes, then intensity
 * 50% = 5 minutes
 * 200% = 20 minutes
 
-## Configuration file example
+## Homie configuration file example
+File `config.json` has to be uploaded to `/homie` folder.
 ```
 {
     "name": "Irrigation",
@@ -47,9 +48,13 @@ If run time is e.g. 10 minutes, then intensity
     "ota": {
       "enabled": true
     },
-    "settings": {
-      "percentage": 55
-    },
+  }
+
+```
+## Settings file exmaple
+File `settings.json` has to be uploaded to `/homie` folder.
+```
+{
     "irrigation": {
         "intensity": 100,
         "disabled-til": "2000-01-01",
@@ -59,6 +64,5 @@ If run time is e.g. 10 minutes, then intensity
             { "id": 2, "run-times":"0,0,0,0,0,20", "run-days":"10010101", "start-hour": 5, "start-min": 0 }
         ]
     }
-  }
-
+}
 ```

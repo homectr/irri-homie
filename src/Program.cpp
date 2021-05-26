@@ -14,6 +14,7 @@ Program::Program(unsigned char id, Valve** v, unsigned char valveCount){
 
     this->valveCount = valveCount > NUMBER_OF_VALVES ? NUMBER_OF_VALVES : valveCount;
 
+    // set default program run-time to 0 min
     for(unsigned char i=0;i<this->valveCount;i++) this->runTimes[i] = 0;
 }
 
@@ -85,13 +86,17 @@ unsigned char Program::setRunTimes(const char* runTimes){
     char* re=rt;
     for (unsigned char i=0;i<NUMBER_OF_VALVES;i++){
         rs = re;
-        while (*re && *re != ',') re++; // find next colon or end of string
+        // find next colon or end of string
+        while (*re && *re != ',') re++; 
+        // if next colon found
         if (re != rs) {
             char* nn;
             long t = strtol(rs, &nn, 10);
             if (errno == ERANGE) {
                 free(rt);
                 return 0;
+            } else {
+                this->runTimes[i] = t;
             }
         }
     }
