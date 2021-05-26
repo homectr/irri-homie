@@ -1,6 +1,5 @@
 #include <Homie.h>
 #include <errno.h>
-#include <LittleFS.h>
 
 #include "settings.h"
 #include "Valve.h"

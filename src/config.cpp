@@ -2,10 +2,17 @@
 
 #include <pgmspace.h>
 
-#define NODEBUG_PRINT
+//#define NODEBUG_PRINT
 #include "debug_print.h"
 
+#ifdef USE_LITTLE_FS
 #include <LittleFS.h>
+#define BOARD_FS    LittleFS
+#else
+#include <FS.h>
+#define BOARD_FS    SPIFFS
+#endif
+
 #include <TimeLib.h>
 
 #include <ArduinoJson.h>
@@ -14,6 +21,8 @@
 #include "settings.h"
 #include "Valve.h"
 #include "Program.h"
+
+
 
 extern Valve* valves[NUMBER_OF_VALVES];
 extern Program* programs[NUMBER_OF_PROGRAMS];
@@ -29,13 +38,13 @@ extern unsigned char sys_intensity;
 
 int initFS(){
     CONSOLE_PGM(PSTR("[init:FS] Mounting FS\n"));
-    if (!LittleFS.begin()){
+    if (!BOARD_FS.begin()){
         CONSOLE_PGM(PSTR("[init:FS] >  FS FAILED TO MOUNT!\n"));
         CONSOLE_PGM(PSTR("[init:FS] >  going to format FS..."));
-        if (LittleFS.format()){
+        if (BOARD_FS.format()){
             CONSOLE_PGM(PSTR("done.\n"));
             CONSOLE_PGM(PSTR("[init:FS] >  Mounting FS again...\n"));
-            if (LittleFS.begin()){
+            if (BOARD_FS.begin()){
                 CONSOLE_PGM(PSTR("done.\n"));
             } else {
                 CONSOLE_PGM(PSTR("FAILED!\n"));
@@ -46,14 +55,21 @@ int initFS(){
             DEBUG_PRINT("FAILED!\n");
             return 0;
         }
+    } else {
+        DEBUG_PRINT("[init:FS] mounted\n");
+        DEBUG_PRINT("[init:FS] ui bundle loaded %d\n",BOARD_FS.exists("/homie"));
+        Dir dir = BOARD_FS.openDir("/");
+        while (dir.next()) {
+            DEBUG_PRINT("file=%s\n",dir.fileName().c_str());
+        }
     }
 
-    if (!LittleFS.exists(FS_READY_FILE)) {
+    if (!BOARD_FS.exists(FS_READY_FILE)) {
         DEBUG_PRINT("[init:FS] >  FS will be formatted\n");
-        if (LittleFS.format())
+        if (BOARD_FS.format())
             DEBUG_PRINT(">  done.\n");
         
-        File f = SPIFFS.open(FS_READY_FILE, "w");
+        File f = BOARD_FS.open(FS_READY_FILE, "w");
         if (!f) {
             DEBUG_PRINT("[init:FS] ERROR: FS write not possible.\n");
             return 0;
@@ -70,19 +86,17 @@ int initFS(){
 
 
 /**
- * Load configuration stored in EEPROM (LittleFS).
+ * Load configuration stored in EEPROM (BOARD_FS).
  * Configuration is stored in text formatted json file.
  * {
- *   system:{ 
- *     intensity: 100,
- *     disabled-till: "YYYY-MM-DD"
- *   }
- *   valves:[
- *     { id: 1, runtime: 10 }
- *   ],
- *   programs:[
- *     { id: 1, run-times:"10,10,20,0,0,0", run-days:"10010101", start-hour: 6, start-min: 30 }
- *   ]
+ *    irrigation: {
+ *      intensity: 100,
+ *      disabled-till: "YYYY-MM-DD"
+ *      valves:[10,10,0,0,0,0],
+ *      programs:[
+ *        { id: 1, run-times:"10,10,20,0,0,0", run-days:"10010101", start-hour: 6, start-min: 30 }
+ *      ]
+ *    }
  * }
  */
 int loadConfig() {
@@ -92,12 +106,12 @@ int loadConfig() {
     const char* f = LOCAL_CONFIG_FILE;
     DEBUG_PRINT("%s reading local config file=%s\n", module, f);
     
-    if (!LittleFS.exists(f)) {
+    if (!BOARD_FS.exists(f)) {
         DEBUG_PRINT("%s no configuration file\n", module);
         return 0;
     }
     
-    File file = LittleFS.open(f,"r");
+    File file = BOARD_FS.open(f,"r");
     auto err = deserializeJson(jdoc,file);
     file.close();
 
@@ -108,21 +122,18 @@ int loadConfig() {
 
     JsonVariant jv;
     JsonArray ja;
-    unsigned int i = 0;;
+    JsonObject jroot = jdoc[F("irrigation")];
+    unsigned int i = 0;
 
     // read valves
     CONSOLE_PGM(PSTR("%s Reading valves\n"), module);
-    ja = jdoc[F("valves")].as<JsonArray>();
+    ja = jroot[F("valves")].as<JsonArray>();
     for(JsonVariant v : ja) {
         CONSOLE_PGM(PSTR("%s   Valve %d "), module, i);
-        jv = v[F("runtime")];
-        if (jv) {
-            unsigned int rt = jv.as<unsigned int>();
-            valves[i]->setRunTime(rt);
-            valve_node->setProperty("manrt").setRange(i).send(String(rt));
-            CONSOLE_PGM(PSTR("manrt=%d"), rt);
-        }
-        CONSOLE("\n");
+        unsigned int rt = v.as<unsigned int>();
+        valves[i]->setRunTime(rt);
+        valve_node->setProperty("manrt").setRange(i).send(String(rt));
+        CONSOLE_PGM(PSTR("manrt=%d\n"), rt);
         i++;
         if (i>=NUMBER_OF_VALVES) {
             CONSOLE_PGM(PSTR("%s Error: too many valves in configuration file\n"), module);
@@ -132,7 +143,7 @@ int loadConfig() {
 
     // read programs
     CONSOLE_PGM(PSTR("%s Reading programs\n"), module);
-    ja = jdoc[F("programs")].as<JsonArray>();
+    ja = jroot[F("programs")].as<JsonArray>();
     i = 0;
     for(JsonVariant v : ja) {
         CONSOLE_PGM(PSTR("%s   Program %d "), module, i);
@@ -184,7 +195,7 @@ int loadConfig() {
 
     CONSOLE_PGM(PSTR("%s Reading system settings\n"), module);
     // read intensity
-    jv = jdoc[F("sys")][F("intensity")];
+    jv = jroot[F("intensity")];
     if (jv){
         unsigned char i = jv.as<unsigned char>();
         CONSOLE_PGM(PSTR("%s   Intensity=%d\n"), i);
@@ -193,7 +204,7 @@ int loadConfig() {
     }
 
    // read disabled till
-    jv = jdoc[F("sys")][F("disabled-till")];
+    jv = jdoc[F("disabled-till")];
     if (jv){
         time_t i = jv.as<time_t>();
         sys_disabledTill = i;
@@ -208,15 +219,24 @@ int loadConfig() {
 
 int saveConfig(){
     const char *module = "[init:svcfg]";
-    DynamicJsonDocument jdoc(2048);
+    DynamicJsonDocument jdoc(3000);
 
     const char* f = LOCAL_CONFIG_FILE;
-    DEBUG_PRINT("%s Saving local config file=%s\n", module, f);
-    
-    File file = LittleFS.open(f,"w");
+    File file = BOARD_FS.open(f,"r");
+    auto err = deserializeJson(jdoc,file);
+    file.close();
 
-    if (valves) {
-        JsonArray ja = jdoc.createNestedArray("valves");
+    if (err){
+        CONSOLE_PGM(PSTR("%s invalid configuration file. error=%s\n"), module, err.c_str());
+        return 0;
+    }    
+    
+    DEBUG_PRINT("%s Preparing local config\n", module);
+    jdoc.remove("irrigation");
+    JsonObject jroot = jdoc.createNestedObject("irrigation");
+
+    if (valves[0]) {
+        JsonArray ja = jroot.createNestedArray("valves");
         for(int i=0;i<NUMBER_OF_VALVES;i++){
             JsonObject jb = ja.createNestedObject();
             jb["id"] = i;
@@ -224,8 +244,8 @@ int saveConfig(){
         }
     }
 
-    if (programs) {
-        JsonArray ja = jdoc.createNestedArray("programs");
+    if (programs[0]) {
+        JsonArray ja = jroot.createNestedArray("programs");
         for(int i=0;i<NUMBER_OF_PROGRAMS;i++){
             JsonObject jb = ja.createNestedObject();
             jb["id"] = i;
@@ -240,12 +260,16 @@ int saveConfig(){
             free(buff);
         }
     }
+    
+    jroot["intensity"] = sys_intensity;
+    jroot["disabled-till"] = sys_disabledTill;  
 
-    JsonObject jsys = jdoc.createNestedObject("sys");
-    jsys["intensity"] = sys_intensity;
-    jsys["disabled-till"] = sys_disabledTill;  
-
-    auto err = serializeJson(jdoc,file);
+    DEBUG_PRINT("%s Saving local config file=%s\n", module, f);
+    file = BOARD_FS.open(f,"w");
+    size_t size = serializeJson(jdoc,file);
+    DEBUG_PRINT("%s Saved %d bytes\n", module, size);
     file.close();
+
+    return 1;
 
 }

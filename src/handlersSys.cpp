@@ -17,9 +17,7 @@ bool handleSysIntensity(const HomieRange& range, const String& value){
 
     Homie.getLogger() << "Intensity set to" << i << endl;
 
-    saveConfig();
-
-    return true;
+    return saveConfig();;
 }
 
 bool handleSysDT(const HomieRange& range, const String& value){
@@ -49,7 +47,5 @@ bool handleSysDT(const HomieRange& range, const String& value){
     sys_disabledTill = makeTime(tm);
     Homie.getLogger() << "Scheduler disabled till" << sys_disabledTill << "d=" << buff << endl;
 
-    saveConfig();
-
-    return true;
+    return saveConfig();
 }
