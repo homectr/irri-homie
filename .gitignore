@@ -36,3 +36,6 @@
 
 # VSCode Files
 .vscode
+
+# Homie configuration file
+data/homie/config.json
