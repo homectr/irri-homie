@@ -42,7 +42,7 @@ void Program::start(){
     for (int v=0; v < valveCount;v++)
         if (runTimes[v]>0) {
             currentValve = v;
-            valves[v]->open(runTimes[v], intensity);
+            valves[v]->open(runTimes[v]*60, intensity);
             break;
         }
 }
@@ -100,7 +100,7 @@ void Program::loop(){
     
     DEBUG_PRINT("Program '%s' next valve %d.\n", getName(), currentValve);
     if (currentValve < valveCount) {
-        valves[currentValve]->open(runTimes[currentValve], intensity);
+        valves[currentValve]->open(runTimes[currentValve]*60, intensity);
     } else {
         // stop program if all valves have been cycled
         stop();

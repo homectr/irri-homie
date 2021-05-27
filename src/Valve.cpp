@@ -14,18 +14,18 @@ void Valve::close(){
     if (onClose) onClose(id);
 }
 
-void Valve::open(unsigned int minutes, unsigned char intensity){
-    DEBUG_PRINT("Requested opening valve %d for %d minutes @%d intensity \n", id, minutes, intensity);
-    float t = minutes * (intensity/100);
+void Valve::open(unsigned int seconds, unsigned char intensity){
+    DEBUG_PRINT("Requested opening valve %d for %d seconds @%d intensity \n", id, seconds, intensity);
+    float t = seconds * (intensity/100);
     if (t == 0) { 
         close();
         return;
     }
-    unsigned int min = t > 120 ? 120 : t;
-    runtime =  min * 60000;
+    unsigned long sec = t > 7200 ? 7200 : t;
+    runtime =  sec * 1000;
     openedAt = millis();
     status = 1;
-    DEBUG_PRINT("Opening valve %d for %d minutes\n", id, min);
+    DEBUG_PRINT("Opening valve %d for %d seconds\n", id, sec);
     if (onOpen) onOpen(id);
 }
 

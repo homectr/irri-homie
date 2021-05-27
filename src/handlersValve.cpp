@@ -55,7 +55,7 @@ bool handleValveRT(const HomieRange& range, const String& value){
 
     unsigned char valveId = range.index-1;
     int t = value.toInt();
-    valves[valveId]->setRunTime(t);
+    valves[valveId]->setRunTime(t*60);
 
     if (Homie.isConnected()) valve_node->setProperty("manrt").setRange(valveId).send(String(t));
     Homie.getLogger() << "Valve runtime" << valveId << " set to " << t << endl;

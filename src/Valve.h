@@ -26,17 +26,17 @@ class Valve {
         Valve(unsigned char id);
 
         /**
-         * Opens valve for specified time (in minutes). 
+         * Opens valve for specified time (in seconds). 
          * Valve closes automatically afterwards
          * 
-         * @param minutes - number of minutes to keep valve open (max. 120)
+         * @param seconds - number of seconds to keep valve open (max. 7200)
          */
-        void open(unsigned int minutes, unsigned char intensity);
+        void open(unsigned int seconds, unsigned char intensity);
 
-        inline void open(unsigned int minutes){open(minutes, 100);};
+        inline void open(unsigned int seconds){open(seconds, 600);};
 
         // open valve for time specified in default runtime
-        inline void open(){open(defRunTime, 100);};
+        inline void open(){open(defRunTime, 600);};
 
         // close valve
         void close();

@@ -97,7 +97,7 @@ int loadConfig() {
         }
         CONSOLE_PGM(PSTR("%s   Valve %d "), module, i);
         unsigned int rt = v.as<unsigned int>();
-        valves[i]->setRunTime(rt);
+        valves[i]->setRunTime(rt*60);
         CONSOLE_PGM(PSTR("manrt=%d\n"), rt);
         i++;
     }
