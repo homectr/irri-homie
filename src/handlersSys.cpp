@@ -13,7 +13,7 @@ bool handleSysIntensity(const HomieRange& range, const String& value){
     if (i<0 || i>200) return false;  // out of allowed range
 
     sys_intensity = i;
-    sys_node->setProperty("intensity").send(String(i));
+    if (Homie.isConnected()) sys_node->setProperty("intensity").send(String(i));
 
     Homie.getLogger() << "Intensity set to" << i << endl;
 
@@ -42,7 +42,7 @@ bool handleSysDT(const HomieRange& range, const String& value){
 
     char buff[15];
     sprintf(buff,"%40d-%20d-%20d",tm.Year, tm.Month, tm.Day);
-    sys_node->setProperty("dsbtill").send(String(buff));
+    if (Homie.isConnected()) sys_node->setProperty("dsbtill").send(String(buff));
 
     sys_disabledTill = makeTime(tm);
     Homie.getLogger() << "Scheduler disabled till" << sys_disabledTill << "d=" << buff << endl;

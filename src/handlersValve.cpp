@@ -18,7 +18,7 @@ void onValveOpen(unsigned char valveId){
     digitalWrite(GPIOS[valveId], 1);
 
     // update Homie property
-    valve_node->setProperty("status").setRange(valveId).send("OPEN");
+    if (Homie.isConnected()) valve_node->setProperty("status").setRange(valveId).send("OPEN");
     Homie.getLogger() << "Valve " << valveId << " is OPEN" << endl;
 }
 
@@ -28,7 +28,7 @@ void onValveClose(unsigned char valveId){
     digitalWrite(GPIOS[valveId], 0);
 
     // update Homie property
-    valve_node->setProperty("status").setRange(valveId).send("CLOSED");
+    if (Homie.isConnected()) valve_node->setProperty("status").setRange(valveId).send("CLOSED");
     Homie.getLogger() << "Valve " << valveId << " is CLOSED" << endl;
 }
 
@@ -57,7 +57,7 @@ bool handleValveRT(const HomieRange& range, const String& value){
     int t = value.toInt();
     valves[valveId]->setRunTime(t);
 
-    valve_node->setProperty("manrt").setRange(valveId).send(String(t));
+    if (Homie.isConnected()) valve_node->setProperty("manrt").setRange(valveId).send(String(t));
     Homie.getLogger() << "Valve runtime" << valveId << " set to " << t << endl;
 
     return true;

@@ -57,7 +57,7 @@ class Program {
         unsigned char setRunTimes(const char* runtimes);
         unsigned char setRunDays(const char* runDays);
         void setIntensity(unsigned char i){intensity = i;};
-        void setOnStartCB(program_cb_t cb){onStop = cb;};
+        void setOnStartCB(program_cb_t cb){onStart = cb;};
         void setOnStopCB(program_cb_t cb){onStop = cb;};
         void setName(const char *name);
         const char* getName(){return name;};
