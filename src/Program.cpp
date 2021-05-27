@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include "Program.h"
 #include <string.h>
 #include <stdlib.h>
@@ -7,18 +8,19 @@
 #define NODEBUG_PRINT
 #include "debug_print.h"
 
-Program::Program(unsigned char id, Valve** v, unsigned char valveCount){
+Program::Program(unsigned char id){
     this->id = id;
 
     name = strdup("Program  ");
     *(name+8)=id+48;  // add {id} after "Program"
 
-    *valves = *v;
-
-    this->valveCount = valveCount > NUMBER_OF_VALVES ? NUMBER_OF_VALVES : valveCount;
+    this->valveCount = 0;
 
     // set default program run-time to 0 min
-    for(unsigned char i=0;i<this->valveCount;i++) this->runTimes[i] = 0;
+    for(int i=0;i<NUMBER_OF_VALVES;i++) this->runTimes[i] = 0;
+
+    currentValve = 0;
+    status = 0;
 }
 
 void Program::setName(const char* name){
@@ -27,55 +29,78 @@ void Program::setName(const char* name){
 }
 
 void Program::start(){
-    if (valveCount == 0) return;
+    if (valveCount == 0) {
+        CONSOLE_PGM(PSTR("Error: no valves defined for program '%s'\n"),getName());
+        return;
+    }
+    DEBUG_PRINT("Starting program '%s'. Intensity %d\n",this->getName(), intensity);
     status = 1;
     currentValve = 0;
     if (onStart) onStart(id);
-    valves[0]->open(runTimes[0]*(intensity/100));
-    DEBUG_PRINT("Starting program '%s'. Intensity %d\n",this->getName(), intensity);
+
+    // open the first valve having non-zero run time
+    for (int v=0; v < valveCount;v++)
+        if (runTimes[v]>0) {
+            currentValve = v;
+            valves[v]->open(runTimes[v], intensity);
+            break;
+        }
 }
 
 void Program::stop(){
     status = 0;
     currentValve = 0;
-
-    // close all valves on program stop
-    for (char i = 0; i<NUMBER_OF_VALVES;i++) valves[i]->close();
-
     DEBUG_PRINT("Stopping program '%s'\n", this->getName());
-
+    // close all valves on program stop
+    for (char i = 0; i < valveCount;i++) 
+        valves[i]->close();
     if (onStop) onStop(id);
+
 }
 
 /**
  * returns 1 or 0 if program should start on provided datetime
  */
 unsigned char Program::shouldStart(time_t datetime) {
-    return datetime > disabledTill 
-        && runDays[weekday(datetime)-1] 
+    return runDays[weekday(datetime)-1] 
         && hour(datetime) == startHour 
         && minute(datetime) == startMin;
 }
 
 void Program::loop(){
 
+    DEBUG_PRINT("[loop] Program %s\n",getName());
+
     // if program is not running 
     if (status == 0) {
-        if (shouldStart(now())) {
+        time_t dt = now();
+        // and if program should start according to planned days & times
+        DEBUG_PRINT("Checking program '%s'\n", getName());
+        if (shouldStart(dt)) {
+            DEBUG_PRINT("Start\n");    
             start();
+        } else {
+            DEBUG_PRINT("Program wont start - not in calendar %d\n",dt);
         }
+
         return;
     }
 
     // if program is running and valve is open, then do nothing
     if (valves[currentValve]->isOpen()) return;
 
+    DEBUG_PRINT("Program '%s' current valve %d.\n", getName(), currentValve);
+
     // if program is running and currentValve is not open means valve reached its runtime
     // get and open next valve
-    currentValve++;
-    DEBUG_PRINT("Program '%s' next valve %d.\n",this->getName(), currentValve);
-    if (currentValve < NUMBER_OF_VALVES) {
-        valves[currentValve]->open(runTimes[currentValve]*(intensity/100));
+    do {
+        currentValve++;
+        DEBUG_PRINT("cv=%d rt=%d\n",currentValve, runTimes[currentValve]);
+    } while (currentValve < valveCount && runTimes[currentValve] == 0);
+    
+    DEBUG_PRINT("Program '%s' next valve %d.\n", getName(), currentValve);
+    if (currentValve < valveCount) {
+        valves[currentValve]->open(runTimes[currentValve], intensity);
     } else {
         // stop program if all valves have been cycled
         stop();
@@ -99,7 +124,8 @@ unsigned char Program::setRunTimes(const char* runTimes){
     for (unsigned char i=0;i<NUMBER_OF_VALVES;i++){
         rs = re;
         // find next colon or end of string
-        while (*re && *re != ',') re++; 
+        while (*re && *re != ',') re++;
+        if (*re == ',') re++;
         // if next colon found
         if (re != rs) {
             char* nn;
@@ -116,17 +142,32 @@ unsigned char Program::setRunTimes(const char* runTimes){
     return 1;
 }
 
-int Program::getRunDays(char* buffer, size_t size){
-    if (size < 8) return 0;
-    for (int i=0;i<7;i++){
-        buffer[i]=this->runDays[i]?'1':'0';
-    }
-    buffer[7]=0;
+String Program::getRunDays(){
+    String s = "";
+    for (int i=0;i<7;i++)
+        s += runDays[i]?'1':'0';
+    return s;
 }
 
-int Program::getRunTimes(char* buffer, size_t size){
-    size_t pos = 0;
-    for(int i=0;i<NUMBER_OF_VALVES;i++){
-        pos += snprintf(buffer+pos, size-pos, "%d, ", runTimes[i]);
-    }
+String Program::getRunTimes(){
+    String s = "";
+    for(int i=0;i<NUMBER_OF_VALVES;i++)
+        s += String(runTimes[i])+", ";
+    return s;
+}
+
+void Program::addValve(Valve *valve){
+    if (valveCount>=NUMBER_OF_VALVES) return;
+    valves[valveCount] = valve;
+    valveCount++;
+}
+
+void Program::printConfig(){
+    DEBUG_PRINT("Program config '%s': rt=%s rd=%s sh=%d sm=%d\n",
+        getName(),
+        getRunTimes().c_str(), 
+        getRunDays().c_str(), 
+        getStartHour(), 
+        getStartMinute()
+    );
 }

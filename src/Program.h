@@ -27,11 +27,8 @@ class Program {
         // which days of a week should program run, starting with Sunday
         unsigned char runDays[7] = {0,0,0,0,0,0,0};
 
-        // datetime till when this program is disabled and wont start using calendar
-        time_t disabledTill = 0;
-        
         // array of pointers to valves
-        Valve* valves[];
+        Valve* valves[NUMBER_OF_VALVES];
 
         // count of valves 
         unsigned char valveCount = 0;
@@ -43,7 +40,7 @@ class Program {
         unsigned char currentValve = 0;
 
         // valve runtime multiplier, e.g. 120 = 120% valve runtime
-        unsigned char intensity = 0;
+        unsigned char intensity = 100;
 
         // callback to be called when program starts
         program_cb_t onStart = NULL;
@@ -52,7 +49,7 @@ class Program {
         program_cb_t onStop = NULL;
 
     public:
-        Program(unsigned char id, Valve** valves, unsigned char valveCount);
+        Program(unsigned char id);
         void start();
         void stop();
         void loop();
@@ -64,10 +61,13 @@ class Program {
         void setOnStopCB(program_cb_t cb){onStop = cb;};
         void setName(const char *name);
         const char* getName(){return name;};
-        int getRunTimes(char* buffer, size_t size);
-        int getRunDays(char* buffer, size_t size);
+        String getRunTimes();
+        String getRunDays();
         unsigned char getStartHour(){return startHour;};
         unsigned char getStartMinute(){return startMin;};
         unsigned char shouldStart(time_t datetime);
+        unsigned char isRunning(){return status;};
+        void addValve(Valve* valve);
+        void printConfig();
 
 };

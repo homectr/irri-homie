@@ -2,7 +2,7 @@
 
 #include <pgmspace.h>
 
-//#define NODEBUG_PRINT
+#define NODEBUG_PRINT
 #include "debug_print.h"
 
 #ifdef USE_LITTLE_FS
@@ -21,8 +21,7 @@
 #include "settings.h"
 #include "Valve.h"
 #include "Program.h"
-
-
+#include "utils.h"
 
 extern Valve* valves[NUMBER_OF_VALVES];
 extern Program* programs[NUMBER_OF_PROGRAMS];
@@ -78,8 +77,6 @@ int loadConfig() {
     auto err = deserializeJson(jdoc,file);
     file.close();
 
-    serializeJsonPretty(jdoc,Serial);
-
     if (err){
         CONSOLE_PGM(PSTR("%s invalid configuration file. error=%s\n"), module, err.c_str());
         return 0;
@@ -101,7 +98,6 @@ int loadConfig() {
         CONSOLE_PGM(PSTR("%s   Valve %d "), module, i);
         unsigned int rt = v.as<unsigned int>();
         valves[i]->setRunTime(rt);
-        valve_node->setProperty("manrt").setRange(i).send(String(rt));
         CONSOLE_PGM(PSTR("manrt=%d\n"), rt);
         i++;
     }
@@ -118,37 +114,13 @@ int loadConfig() {
 
         CONSOLE_PGM(PSTR("%s   Program %d "), module, i);
 
-        if (prg[F("name")]) {
-            const char* c = prg[F("name")];
-            programs[i]->setName(c);
-            prg_node->setProperty("name").setRange(i).send(String(c));
-            CONSOLE_PGM(PSTR(" name=%s"), c);
-        }
-
-        {
-            const char* c = prg[F("run-times")] | "";
-            programs[i]->setRunTimes(c);
-            prg_node->setProperty("runtimes").setRange(i).send(String(c));
-            CONSOLE_PGM(PSTR(" rt=%s"), c);
-        }
-
-        {
-            const char* c = prg[F("run-days")] | "0000000";
-            programs[i]->setRunDays(c);
-            prg_node->setProperty("rundays").setRange(i).send(String(c));
-            CONSOLE_PGM(PSTR(" rd=%s"), c);
-        }
-
-        {
-            unsigned char h = prg[F("start-hour")] | (unsigned char)6;
-            CONSOLE_PGM(PSTR(" sh=%d"), h);
-
-            unsigned char m = prg[F("start-min")] | (unsigned char)0;
-            CONSOLE_PGM(PSTR(" sm=%d"), m);
-            programs[i]->setStart(h,m);
-            prg_node->setProperty("starthour").setRange(i).send(String(h));
-            prg_node->setProperty("startmin").setRange(i).send(String(m));
-        }
+        programs[i]->setName(prg[F("name")] | String("Program "+String(i)).c_str());
+        programs[i]->setRunTimes(prg[F("run-times")] | "");
+        programs[i]->setRunDays(prg[F("run-days")] | "0000000");
+        programs[i]->setStart(
+            prg[F("start-hour")] | (unsigned char)6,
+            prg[F("start-min")] | (unsigned char)0
+        );
 
         CONSOLE("\n");
         i++;
@@ -160,17 +132,14 @@ int loadConfig() {
         unsigned char i = jroot[F("intensity")] | (unsigned char)100;
         CONSOLE_PGM(PSTR("%s   Intensity=%d\n"), module, i);
         sys_intensity = i;
-        sys_node->setProperty("intensity").send(String(i));
+        for(int p=0;p<NUMBER_OF_PROGRAMS;p++) programs[p]->setIntensity(i);
     }
  
     {
         // read disabled till
         time_t i = jroot[F("disabled-till")] | 0;
         sys_disabledTill = i;
-        char buff[15];
-        snprintf(buff,14,"%04d-%02d-%02d",year(i),month(i)+1,day(i)+1);
-        CONSOLE_PGM(PSTR("%s   Disabled till=%lu date=%s\n"), module, i, buff);
-        sys_node->setProperty("dsbtill").send(String(buff));
+        CONSOLE_PGM(PSTR("%s   Disabled till=%d\n"), module, i);
     }
     
     return 1;
@@ -209,14 +178,10 @@ int saveConfig(){
             JsonObject jb = ja.createNestedObject();
             jb["id"] = i;
             jb["name"] = programs[i]->getName();
-            char* buff = (char*)malloc(300);
-            programs[i]->getRunTimes(buff,300);
-            jb["run-times"] = buff;
-            programs[i]->getRunDays(buff,300);
-            jb["run-days"] = buff;
+            jb["run-times"] = programs[i]->getRunTimes();
+            jb["run-days"] = programs[i]->getRunDays();
             jb["start-hour"] = programs[i]->getStartHour();
             jb["start-min"] = programs[i]->getStartMinute();
-            free(buff);
         }
     }
     

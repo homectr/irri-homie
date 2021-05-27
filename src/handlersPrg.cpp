@@ -75,10 +75,9 @@ bool handleProgramRunDays(const HomieRange& range, const String& value){
     if (range.index < 1 || range.index > NUMBER_OF_PROGRAMS) return false;  // if it's not a valid range
 
     if (!programs[range.index]->setRunDays(value.c_str())) return false;
-    char buff[15];
-    programs[range.index]->getRunDays(buff,15);
-    prg_node->setProperty("rundays").setRange(range).send(String(buff));
-    Homie.getLogger() << "Program " << range.index << " run days set to " << buff << endl;
+    String rd = programs[range.index]->getRunDays();
+    prg_node->setProperty("rundays").setRange(range).send(rd);
+    Homie.getLogger() << "Program " << range.index << " run days set to " << rd << endl;
 
     return true;
 }
@@ -88,11 +87,9 @@ bool handleProgramRunTimes(const HomieRange& range, const String& value){
     if (range.index < 1 || range.index > NUMBER_OF_PROGRAMS) return false;  // if it's not a valid range
 
     if (!programs[range.index]->setRunTimes(value.c_str())) return false;
-    char* buff = (char*)malloc(200);
-    programs[range.index]->getRunDays(buff,15);
-    prg_node->setProperty("rundays").setRange(range).send(String(buff));
-    Homie.getLogger() << "Program " << range.index << " run days set to " << buff << endl;
-    free(buff);
+    String rt = programs[range.index]->getRunDays();  
+    prg_node->setProperty("rundays").setRange(range).send(rt);
+    Homie.getLogger() << "Program " << range.index << " run days set to " << rt << endl;
 
     return true;
 }

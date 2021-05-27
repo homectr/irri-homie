@@ -3,6 +3,9 @@
 #include "settings.h"
 #include "Valve.h"
 
+#define NODEBUG_PRINT
+#include "debug_print.h"
+
 extern Valve* valves[NUMBER_OF_VALVES];
 extern const String opts;
 extern const unsigned char negativeOpts;
@@ -10,6 +13,7 @@ extern const unsigned char GPIOS[NUMBER_OF_VALVES];
 extern HomieNode* valve_node;
 
 void onValveOpen(unsigned char valveId){
+    DEBUG_PRINT("[onValveOpen]\n");
     // switch valve on
     digitalWrite(GPIOS[valveId], 1);
 
@@ -19,6 +23,7 @@ void onValveOpen(unsigned char valveId){
 }
 
 void onValveClose(unsigned char valveId){
+    DEBUG_PRINT("[onValveClose]\n");
     // switch valve off
     digitalWrite(GPIOS[valveId], 0);
 

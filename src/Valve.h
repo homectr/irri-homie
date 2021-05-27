@@ -31,25 +31,27 @@ class Valve {
          * 
          * @param minutes - number of minutes to keep valve open (max. 120)
          */
-        void open(unsigned int minutes);
+        void open(unsigned int minutes, unsigned char intensity);
+
+        inline void open(unsigned int minutes){open(minutes, 100);};
 
         // open valve for time specified in default runtime
-        void open(){open(defRunTime);};
+        inline void open(){open(defRunTime, 100);};
 
         // close valve
         void close();
 
         // is valve open?
-        unsigned char isOpen(){return status == 1;};
+        unsigned char isOpen(){return status;};
 
         // valve handler - has to be called
         void loop();
 
         // set valve onOpen callback
-        void setOnOpenCB(valve_cb_t cb){onClose = cb;};
+        void setOnOpenCB(valve_cb_t cb){onOpen = cb;};
 
         // set valve onClose callback
-        void setOnCloseCB(valve_cb_t cb){onOpen = cb;};
+        void setOnCloseCB(valve_cb_t cb){onClose = cb;};
 
         // set valve default runtime
         void setRunTime(unsigned int seconds){defRunTime = seconds;};
