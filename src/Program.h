@@ -68,7 +68,6 @@ class Program {
         unsigned char shouldStart(time_t datetime);
         unsigned char isRunning(){return status;};
         void addValve(Valve* valve);
-        unsigned char getValveCount(){return valveCount;};
         void printConfig();
 
 };

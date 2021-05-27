@@ -188,8 +188,8 @@ int saveConfig(){
             jb["start-min"] = programs[i]->getStartMinute();
 
             JsonArray ja = jb.createNestedArray("run-times");
-            for(int j=0; j<programs[i]->getValveCount();j++) ja.add(programs[i]->getRunTime(j));
-            
+            for(int j=0; j<NUMBER_OF_VALVES;j++) ja.add(programs[i]->getRunTime(j));
+
             ja = jb.createNestedArray("run-days");
             for(int j=0; j<7; j++) ja.add(programs[i]->getRunDay(j));
         }
