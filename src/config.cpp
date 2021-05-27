@@ -1,8 +1,5 @@
 #include "config.h"
 
-#define NODEBUG_PRINT
-#include "debug_print.h"
-
 #include <pgmspace.h>
 
 #ifdef USE_LITTLE_FS
@@ -22,6 +19,9 @@
 #include "Valve.h"
 #include "Program.h"
 #include "utils.h"
+
+//#define NODEBUG_PRINT
+#include "debug_print.h"
 
 extern Valve* valves[NUMBER_OF_VALVES];
 extern Program* programs[NUMBER_OF_PROGRAMS];
@@ -96,8 +96,8 @@ int loadConfig() {
             break;
         }
         CONSOLE_PGM(PSTR("%s   Valve %d "), module, i);
-        unsigned int rt = v.as<unsigned int>();
-        valves[i]->setRunTime(rt*60);
+        unsigned int rt = v | 0;
+        valves[i]->setRunTime(rt);
         CONSOLE_PGM(PSTR("runtime=%d\n"), rt);
         i++;
     }
@@ -118,17 +118,18 @@ int loadConfig() {
         CONSOLE(" rt=");
         int ii=0;
         for (JsonVariant vrt: prg[F("run-times")].as<JsonArray>()){
-            programs[i]->setRunTime(ii,vrt | 0);
+            programs[i]->setRunTime(ii,vrt.as<unsigned int>());
             ii++;
-            CONSOLE(" %d,",programs[i]->getRunTime(ii));
+            CONSOLE("%d/%d,",programs[i]->getRunTime(ii), vrt.as<unsigned int>());
         }
 
         ii=0;
+        DEBUG_PRINT(" RD=%s\n",prg[F("run-days")]);
         CONSOLE(" rd=");
         for (JsonVariant vrd: prg[F("run-days")].as<JsonArray>()){
-            programs[i]->setRunDay(ii,vrd | 0);
+            programs[i]->setRunDay(ii,vrd.as<unsigned char>());
             ii++;
-            CONSOLE("%d",programs[i]->getRunDay(ii));
+            CONSOLE("%d/%d:",programs[i]->getRunDay(ii), vrd.as<unsigned char>());
         }
 
         programs[i]->setStart(
