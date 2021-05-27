@@ -143,7 +143,7 @@ void loop() {
             for (int i=0;i<NUMBER_OF_PROGRAMS;i++) 
                 if (programs[i]) programs[i]->loop();
         } else {
-            CONSOLE("Programs disabled till %d\n", sys_disabledTill );
+            CONSOLE("Programs disabled till %l\n", sys_disabledTill );
         }
 
         lastCheck=millis();

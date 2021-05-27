@@ -56,7 +56,7 @@ void Program::stop(){
     currentValve = 0;
     DEBUG_PRINT("Stopping program '%s'\n", this->getName());
     // close all valves on program stop
-    for (char i = 0; i < valveCount;i++) 
+    for (int i = 0; i < valveCount;i++) 
         valves[i]->close();
     if (onStop) onStop(id);
 
