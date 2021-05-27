@@ -41,7 +41,7 @@ WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", 3600);
 
 time_t getNTPtime(){
-    
+    return 0;
 }
 
 void setup() {
@@ -127,14 +127,12 @@ void setup() {
 #define ALIVE_INTERVAL 30000
 unsigned long lastCheck = millis()-1000000;
 unsigned long alive = millis() - 1000000;
-char buf[25];
 
 void loop() {
     Homie.loop();
 
     if (millis()-alive > (long)ALIVE_INTERVAL){
-        dt2ISO(buf,25,now(),true,NULL);
-        CONSOLE("%s alive\n",buf);
+        CONSOLE("%s alive\n",nowStr());
         alive=millis();
     }
 
@@ -161,7 +159,6 @@ void loop() {
         configLoaded = true;
         for(int i=0;i<NUMBER_OF_PROGRAMS;i++)
             programs[i]->printConfig();
-
     }
 
 }

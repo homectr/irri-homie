@@ -1,6 +1,7 @@
 #include "handlersPrg.h"
 #include "settings.h"
 #include "Program.h"
+#include "utils.h"
 
 extern Program* programs[NUMBER_OF_PROGRAMS];
 extern const String opts;
@@ -11,14 +12,14 @@ void onProgramStart(unsigned char progId){
     if (progId >= NUMBER_OF_PROGRAMS) return;
     // update Homie property
     if (progId < NUMBER_OF_PROGRAMS && Homie.isConnected()) prg_node[progId]->setProperty("status").send("ON");
-    Homie.getLogger() << "Program " << progId << " is ON" << endl;
+    Homie.getLogger() << nowStr() << " Program " << progId << " is ON" << endl;
 }
 
 void onProgramStop(unsigned char progId){
     if (progId >= NUMBER_OF_PROGRAMS) return;
     // update Homie property
     if (Homie.isConnected()) prg_node[progId]->setProperty("status").send("OFF");
-    Homie.getLogger() << "Program " << progId << " is OFF" << endl;
+    Homie.getLogger() << nowStr() << " Program " << progId << " is OFF" << endl;
 }
 
 bool handleProgramStatus(unsigned char progId, const String& value){
@@ -39,7 +40,7 @@ bool handleProgramName(unsigned char progId, const String& value){
 
     programs[progId]->setName(value.c_str());
     if (Homie.isConnected()) prg_node[progId]->setProperty("name").send(value);
-    Homie.getLogger() << "Program " << progId << " name set to " << value << endl;
+    Homie.getLogger() << nowStr() << " Program " << progId << " name set to " << value << endl;
 
     return true;
 }
@@ -50,7 +51,7 @@ bool handleProgramStartHour(unsigned char progId, const String& value){
     int h = value.toInt();
     programs[progId]->setStart(h, programs[progId]->getStartMinute());
     if (Homie.isConnected()) prg_node[progId]->setProperty("starthour").send(String(h));
-    Homie.getLogger() << "Program " << progId << " start hour set to " << h << endl;
+    Homie.getLogger() << nowStr() << " Program " << progId << " start hour set to " << h << endl;
 
     return true;
 }
@@ -61,7 +62,7 @@ bool handleProgramStartMin(unsigned char progId, const String& value){
     int m = value.toInt();
     programs[progId]->setStart(programs[progId]->getStartHour(), m);
     if (Homie.isConnected()) prg_node[progId]->setProperty("startmin").send(String(m));
-    Homie.getLogger() << "Program " << progId << " start minute set to " << m << endl;
+    Homie.getLogger() << nowStr() << " Program " << progId << " start minute set to " << m << endl;
 
     return true;
 }
@@ -73,7 +74,7 @@ bool handleProgramRunDays(unsigned char progId, unsigned char day, bool value){
     String name = "day"+String(day);
     String v = programs[progId]->getRunDay(day) ? "ON":"OFF";
     if (Homie.isConnected()) prg_node[progId]->setProperty(name.c_str()).send(v);
-    Homie.getLogger() << "Program " << progId << " run day " << day << " set to " << v << endl;
+    Homie.getLogger() << nowStr() << " Program " << progId << " run day " << day << " set to " << v << endl;
 
     return true;
 }
@@ -85,7 +86,7 @@ bool handleProgramRunTimes(unsigned char progId, unsigned char valve, unsigned c
     String name = "valve"+String(valve);
     unsigned char rt = programs[progId]->getRunTime(valve);  
     if (Homie.isConnected()) prg_node[progId]->setProperty(name.c_str()).send(String(rt));
-    Homie.getLogger() << "Program " << progId << " valve " << valve << " run time set to " << rt << endl;
+    Homie.getLogger() << nowStr() << " Program " << progId << " valve " << valve << " run time set to " << rt << endl;
 
     return true;
 }

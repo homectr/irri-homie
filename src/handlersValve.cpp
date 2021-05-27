@@ -2,8 +2,9 @@
 #include <Arduino.h>
 #include "settings.h"
 #include "Valve.h"
+#include "utils.h"
 
-//#define NODEBUG_PRINT
+#define NODEBUG_PRINT
 #include "debug_print.h"
 
 extern Valve* valves[NUMBER_OF_VALVES];
@@ -20,7 +21,8 @@ void onValveOpen(unsigned char valveId){
 
     // update Homie property
     if (Homie.isConnected()) valve_node[valveId]->setProperty("status").send("OPEN");
-    Homie.getLogger() << "Valve " << valveId << " is OPEN" << endl;
+
+    Homie.getLogger() << nowStr() << " Valve " << valveId << " is OPEN" << endl;
 }
 
 void onValveClose(unsigned char valveId){
@@ -31,7 +33,7 @@ void onValveClose(unsigned char valveId){
 
     // update Homie property
     if (Homie.isConnected()) valve_node[valveId]->setProperty("status").send("CLOSED");
-    Homie.getLogger() << "Valve " << valveId << " is CLOSED" << endl;
+    Homie.getLogger() << nowStr() << " Valve " << valveId << " is CLOSED" << endl;
 }
 
 bool handleValveStatus(unsigned char valveIdx, const String& value) {
@@ -57,7 +59,7 @@ bool handleValveRT(unsigned char valveId, const String& value){
     valves[valveId]->setRunTime(t*60);
 
     if (Homie.isConnected()) valve_node[valveId]->setProperty("runtime").send(String(t));
-    Homie.getLogger() << "Valve runtime" << valveId << " set to " << t << endl;
+    Homie.getLogger() << nowStr() << "Valve runtime" << valveId << " set to " << t << endl;
 
     return true;
 }
