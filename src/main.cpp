@@ -81,9 +81,7 @@ void setup() {
 
     DEBUG_PRINT("Configuring valve properties\n");
     for(int i=0; i<NUMBER_OF_VALVES; i++){
-        String id = "valve"+String(i);
-        String name = "Valve "+String(i);
-        valve_node[i] = new HomieNode(id.c_str(), name.c_str(), "switch");
+        valve_node[i] = new HomieNode(valves[i]->getIdStr(), valves[i]->getName(), "switch");
         valve_node[i]->advertise("status").setName("Status").setDatatype("enum").setFormat("OPEN,CLOSED").settable();
         valve_node[i]->advertise("runtime").setName("Manual Run Time").setDatatype("integer").setFormat("0:120").settable();
     }
@@ -91,9 +89,7 @@ void setup() {
     // create homie node for valves
     DEBUG_PRINT("Configuring program properties\n");
     for(int i=0; i<NUMBER_OF_PROGRAMS; i++){
-        String id = "prg"+String(i);
-        String name = "Program "+String(i);
-        prg_node[i] = new HomieNode(id.c_str(), name.c_str(), "switch");
+        prg_node[i] = new HomieNode(programs[i]->getIdStr(), programs[i]->getName(), "switch");
         prg_node[i]->advertise("status").setName("Status").setDatatype("enum").setFormat("ON,OFF").settable();
         prg_node[i]->advertise("name").setName("Name").setDatatype("string").settable();
         prg_node[i]->advertise("starthour").setName("Start Hour").setDatatype("integer").setFormat("0:23").settable();
@@ -103,9 +99,7 @@ void setup() {
             prg_node[i]->advertise(did.c_str()).setName(dayStr(j)).setDatatype("enum").setFormat("ON,OFF").settable();
         }
         for(int j=0;j<NUMBER_OF_VALVES;j++){
-            String vid = "valve"+String(j);
-            String vname = "Valve "+String(j);
-            prg_node[i]->advertise(vid.c_str()).setName(vname.c_str()).setDatatype("integer").setFormat("0:120").settable();
+            prg_node[i]->advertise(valves[j]->getIdStr()).setName(valves[j]->getName()).setDatatype("integer").setFormat("0:120").settable();
         }
     }
     

@@ -7,6 +7,12 @@ class Valve {
         // valve identifier
         unsigned char id;
 
+        // valve identifier for mqtt
+        char *idStr = NULL;
+
+        // valve name
+        char *name = NULL;
+
         // valve status
         unsigned char status = 0;
 
@@ -33,10 +39,10 @@ class Valve {
          */
         void open(unsigned int seconds, unsigned char intensity);
 
-        inline void open(unsigned int seconds){open(seconds, 600);};
+        inline void open(unsigned int seconds){open(seconds, (unsigned char)100);};
 
         // open valve for time specified in default runtime
-        inline void open(){open(defRunTime, 600);};
+        inline void open(){open(defRunTime, (unsigned char)100);};
 
         // close valve
         void close();
@@ -58,5 +64,8 @@ class Valve {
 
         // get default runtime for manual start
         unsigned int getRunTime(){return defRunTime;};
+
+        const char* getIdStr(){return idStr;};
+        const char* getName(){return name;};
 
 };

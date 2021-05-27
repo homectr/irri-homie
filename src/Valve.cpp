@@ -1,11 +1,19 @@
 #include <Arduino.h>
 #include "Valve.h"
 
-#define NODEBUG_PRINT
+//#define NODEBUG_PRINT
 #include "debug_print.h"
 
 Valve::Valve(unsigned char id){
     this->id = id;
+
+    char is[20];
+    snprintf(is,20,"valve%d",id);
+    idStr = strdup(is);
+
+    snprintf(is,20,"Valve %d",id);
+    name = strdup(is);
+
 }
 
 void Valve::close(){

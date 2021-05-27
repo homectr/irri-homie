@@ -12,8 +12,11 @@ class Program {
         // program identifier
         unsigned char id;
 
+        // program identifer for mqtt
+        char* idStr = NULL;
+
         // program name - default is "Program {id}"
-        char* name;
+        char* name = NULL;
 
         // program starting hour
         unsigned char startHour = 6;
@@ -69,5 +72,6 @@ class Program {
         unsigned char isRunning(){return status;};
         void addValve(Valve* valve);
         void printConfig();
+        const char* getIdStr(){return idStr;};
 
 };

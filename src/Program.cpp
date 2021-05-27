@@ -11,8 +11,12 @@
 Program::Program(unsigned char id){
     this->id = id;
 
-    name = strdup("Program   ");
-    *(name+8) = id+48;  // add {id} after "Program"
+    char is[20];
+    snprintf(is,20,"prg%d",id);
+    idStr = strdup(is);
+
+    snprintf(is,20,"Program %d",id);
+    name = strdup(is);
 
     this->valveCount = 0;
 
