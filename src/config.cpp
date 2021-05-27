@@ -1,5 +1,8 @@
 #include "config.h"
 
+#define NODEBUG_PRINT
+#include "debug_print.h"
+
 #include <pgmspace.h>
 
 #ifdef USE_LITTLE_FS
@@ -19,9 +22,6 @@
 #include "Valve.h"
 #include "Program.h"
 #include "utils.h"
-
-#define NODEBUG_PRINT
-#include "debug_print.h"
 
 extern Valve* valves[NUMBER_OF_VALVES];
 extern Program* programs[NUMBER_OF_PROGRAMS];
@@ -115,16 +115,20 @@ int loadConfig() {
         CONSOLE_PGM(PSTR("%s   Program %d "), module, i);
         programs[i]->setName(prg[F("name")] | String("Program "+String(i)).c_str());
 
+        CONSOLE(" rt=");
         int ii=0;
         for (JsonVariant vrt: prg[F("run-times")].as<JsonArray>()){
             programs[i]->setRunTime(ii,vrt | 0);
             ii++;
+            CONSOLE(" %d,",vrt);
         }
 
         ii=0;
-        for (JsonVariant vrt: prg[F("run-days")].as<JsonArray>()){
-            programs[i]->setRunTime(ii,vrt | 0);
+        CONSOLE(" rd=");
+        for (JsonVariant vrd: prg[F("run-days")].as<JsonArray>()){
+            programs[i]->setRunTime(ii,vrd | 0);
             ii++;
+            CONSOLE(" %d,",vrd);
         }
 
         programs[i]->setStart(
@@ -132,7 +136,7 @@ int loadConfig() {
             prg[F("start-min")] | (unsigned char)0
         );
 
-        CONSOLE("\n");
+        CONSOLE(" start=%02d:%02d\n",programs[i]->getStartHour(), programs[i]->getStartMinute());
         i++;
     }
 
