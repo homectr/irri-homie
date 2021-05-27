@@ -2,9 +2,6 @@
 
 #include <pgmspace.h>
 
-#define NODEBUG_PRINT
-#include "debug_print.h"
-
 #ifdef USE_LITTLE_FS
 #include <LittleFS.h>
 #define BOARD_FS    LittleFS
@@ -22,6 +19,9 @@
 #include "Valve.h"
 #include "Program.h"
 #include "utils.h"
+
+#define NODEBUG_PRINT
+#include "debug_print.h"
 
 extern Valve* valves[NUMBER_OF_VALVES];
 extern Program* programs[NUMBER_OF_PROGRAMS];
