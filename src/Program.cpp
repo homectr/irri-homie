@@ -5,7 +5,7 @@
 #include <errno.h>
 #include <stdio.h>
 
-//#define NODEBUG_PRINT
+#define NODEBUG_PRINT
 #include "debug_print.h"
 
 Program::Program(unsigned char id){

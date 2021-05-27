@@ -20,7 +20,7 @@
 #include "Program.h"
 #include "utils.h"
 
-//#define NODEBUG_PRINT
+#define NODEBUG_PRINT
 #include "debug_print.h"
 
 extern Valve* valves[NUMBER_OF_VALVES];
@@ -124,7 +124,6 @@ int loadConfig() {
         }
 
         ii=0;
-        DEBUG_PRINT(" RD=%s\n",prg[F("run-days")]);
         CONSOLE(" rd=");
         for (JsonVariant vrd: prg[F("run-days")].as<JsonArray>()){
             programs[i]->setRunDay(ii,vrd.as<unsigned char>());
