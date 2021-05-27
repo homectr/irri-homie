@@ -113,18 +113,18 @@ int loadConfig() {
         }
 
         CONSOLE_PGM(PSTR("%s   Program %d "), module, i);
-
         programs[i]->setName(prg[F("name")] | String("Program "+String(i)).c_str());
-        int i=0;
+
+        int ii=0;
         for (JsonVariant vrt: prg[F("run-times")].as<JsonArray>()){
-            programs[i]->setRunTime(i,vrt | 0);
-            i++;
+            programs[i]->setRunTime(ii,vrt | 0);
+            ii++;
         }
 
-        i=0;
+        ii=0;
         for (JsonVariant vrt: prg[F("run-days")].as<JsonArray>()){
-            programs[i]->setRunTime(i,vrt | 0);
-            i++;
+            programs[i]->setRunTime(ii,vrt | 0);
+            ii++;
         }
 
         programs[i]->setStart(
