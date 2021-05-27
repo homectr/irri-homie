@@ -32,19 +32,18 @@ void onValveClose(unsigned char valveId){
     Homie.getLogger() << "Valve " << valveId << " is CLOSED" << endl;
 }
 
-bool handleValveStatus(const HomieRange& range, const String& value) {
-    if (!range.isRange) return false;  // if it's not a range
-    if (range.index < 1 || range.index > NUMBER_OF_VALVES) return false;  // if it's not a valid range
+bool handleValveStatus(unsigned char valveIdx, const String& value) {
+    if (valveIdx >= NUMBER_OF_VALVES) return false;  // if it's not a valid range
 
     int8_t i = opts.indexOf(value);
     if (0 > i) return false;  // if the value is not valid
   
     bool on = (i < negativeOpts); // if one of the positive options
 
-    if (on) valves[range.index-1]->open(); // if valve opened manually, then use default run time
-    else valves[range.index-1]->close();
+    if (on) valves[valveIdx]->open(); // if valve opened manually, then use default run time
+    else valves[valveIdx]->close();
 
-    digitalWrite(GPIOS[range.index - 1], on ? HIGH : LOW);
+    digitalWrite(GPIOS[valveIdx], on ? HIGH : LOW);
 
     return true;
 }

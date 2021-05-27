@@ -54,20 +54,21 @@ class Program {
         void stop();
         void loop();
         void setStart(unsigned char hour, unsigned char minute){startHour = hour; startMin = minute;};
-        unsigned char setRunTimes(const char* runtimes);
-        unsigned char setRunDays(const char* runDays);
+        unsigned char setRunTime(unsigned char valve, unsigned char runtime);
+        unsigned char setRunDay(unsigned char day, bool status);
         void setIntensity(unsigned char i){intensity = i;};
         void setOnStartCB(program_cb_t cb){onStart = cb;};
         void setOnStopCB(program_cb_t cb){onStop = cb;};
         void setName(const char *name);
         const char* getName(){return name;};
-        String getRunTimes();
-        String getRunDays();
+        unsigned char getRunTime(unsigned char valve){return valve<valveCount ? runTimes[valve] : 0;};
+        unsigned char getRunDay(unsigned char day){return day<7 ? runDays[day] : 0;};
         unsigned char getStartHour(){return startHour;};
         unsigned char getStartMinute(){return startMin;};
         unsigned char shouldStart(time_t datetime);
         unsigned char isRunning(){return status;};
         void addValve(Valve* valve);
+        unsigned char getValveCount(){return valveCount;};
         void printConfig();
 
 };

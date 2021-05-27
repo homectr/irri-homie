@@ -98,7 +98,7 @@ int loadConfig() {
         CONSOLE_PGM(PSTR("%s   Valve %d "), module, i);
         unsigned int rt = v.as<unsigned int>();
         valves[i]->setRunTime(rt*60);
-        CONSOLE_PGM(PSTR("manrt=%d\n"), rt);
+        CONSOLE_PGM(PSTR("runtime=%d\n"), rt);
         i++;
     }
 
@@ -115,8 +115,18 @@ int loadConfig() {
         CONSOLE_PGM(PSTR("%s   Program %d "), module, i);
 
         programs[i]->setName(prg[F("name")] | String("Program "+String(i)).c_str());
-        programs[i]->setRunTimes(prg[F("run-times")] | "");
-        programs[i]->setRunDays(prg[F("run-days")] | "0000000");
+        int i=0;
+        for (JsonVariant vrt: prg[F("run-times")].as<JsonArray>()){
+            programs[i]->setRunTime(i,vrt | 0);
+            i++;
+        }
+
+        i=0;
+        for (JsonVariant vrt: prg[F("run-days")].as<JsonArray>()){
+            programs[i]->setRunTime(i,vrt | 0);
+            i++;
+        }
+
         programs[i]->setStart(
             prg[F("start-hour")] | (unsigned char)6,
             prg[F("start-min")] | (unsigned char)0
@@ -165,23 +175,23 @@ int saveConfig(){
 
     if (valves[0]) {
         JsonArray ja = jroot.createNestedArray("valves");
-        for(int i=0;i<NUMBER_OF_VALVES;i++){
-            JsonObject jb = ja.createNestedObject();
-            jb["id"] = i;
-            jb["runtime"] = valves[i]->getRunTime();
-        }
+        for(int i=0;i<NUMBER_OF_VALVES;i++)
+            ja.add(valves[i]->getRunTime());
     }
 
     if (programs[0]) {
         JsonArray ja = jroot.createNestedArray("programs");
         for(int i=0;i<NUMBER_OF_PROGRAMS;i++){
             JsonObject jb = ja.createNestedObject();
-            jb["id"] = i;
             jb["name"] = programs[i]->getName();
-            jb["run-times"] = programs[i]->getRunTimes();
-            jb["run-days"] = programs[i]->getRunDays();
             jb["start-hour"] = programs[i]->getStartHour();
             jb["start-min"] = programs[i]->getStartMinute();
+
+            JsonArray ja = jb.createNestedArray("run-times");
+            for(int j=0; j<programs[i]->getValveCount();j++) ja.add(programs[i]->getRunTime(j));
+            
+            ja = jb.createNestedArray("run-days");
+            for(int j=0; j<7; j++) ja.add(programs[i]->getRunDay(j));
         }
     }
     

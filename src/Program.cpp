@@ -107,53 +107,16 @@ void Program::loop(){
     }
 }
 
-unsigned char Program::setRunDays(const char* runDays){
-    unsigned i=0;
-    while (i<7 && *(runDays+i)) {
-        this->runDays[i] = *(runDays+i)=='1'?1:0;
-        i++;
-    }
+unsigned char Program::setRunDay(unsigned char day, bool status){
+    if (day>=7) return 0;
+    runDays[day]=status;
     return 1;
 }
 
-unsigned char Program::setRunTimes(const char* runTimes){
-
-    char* rt = strdup(runTimes);
-    char* rs=rt;
-    char* re=rt;
-    for (unsigned char i=0;i<NUMBER_OF_VALVES;i++){
-        rs = re;
-        // find next colon or end of string
-        while (*re && *re != ',') re++;
-        if (*re == ',') re++;
-        // if next colon found
-        if (re != rs) {
-            char* nn;
-            long t = strtol(rs, &nn, 10);
-            if (errno == ERANGE) {
-                free(rt);
-                return 0;
-            } else {
-                this->runTimes[i] = t;
-            }
-        }
-    }
-    free(rt);
+unsigned char Program::setRunTime(unsigned char valve, unsigned char runtime){
+    if (valve >= valveCount) return 0;
+    runTimes[valve] = runtime;
     return 1;
-}
-
-String Program::getRunDays(){
-    String s = "";
-    for (int i=0;i<7;i++)
-        s += runDays[i]?'1':'0';
-    return s;
-}
-
-String Program::getRunTimes(){
-    String s = "";
-    for(int i=0;i<NUMBER_OF_VALVES;i++)
-        s += String(runTimes[i])+", ";
-    return s;
 }
 
 void Program::addValve(Valve *valve){
@@ -165,8 +128,6 @@ void Program::addValve(Valve *valve){
 void Program::printConfig(){
     DEBUG_PRINT("Program config '%s': rt=%s rd=%s sh=%d sm=%d\n",
         getName(),
-        getRunTimes().c_str(), 
-        getRunDays().c_str(), 
         getStartHour(), 
         getStartMinute()
     );

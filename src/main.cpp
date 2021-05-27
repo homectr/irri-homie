@@ -8,6 +8,7 @@
 #include "System.h"
 #include "config.h"
 
+#include "handlers.h"
 #include "handlersPrg.h"
 #include "handlersValve.h"
 #include "handlersSys.h"
@@ -23,10 +24,10 @@ const char* optsOFF = "closed CLOSED off OFF 0";
 String opts = String(optsON) + " " + String(optsOFF);
 unsigned char negativeOpts = strlen(optsON)+1; // start of negative options
 
-HomieNode* valve_node;  // node for manipulating irrigation valves
+HomieNode* valve_node[NUMBER_OF_VALVES];  // node for manipulating irrigation valves
 Valve* valves[NUMBER_OF_VALVES];  // array of valve objects
 
-HomieNode* prg_node;  // node for manipulating irrigation programs
+HomieNode* prg_node[NUMBER_OF_PROGRAMS];  // node for manipulating irrigation programs
 Program* programs[NUMBER_OF_PROGRAMS]; // array of program objects
 
 HomieNode* sys_node;    // node for manipulating irrigation system
@@ -75,19 +76,35 @@ void setup() {
     }
 
     Homie_setFirmware("Irrigation", "1.0.0");
+    Homie.setGlobalInputHandler(eventHandler);
+
+    for(int i=0; i<NUMBER_OF_VALVES; i++){
+        String id = "valve"+String(i);
+        String name = "Valve "+String(i);
+        valve_node[i] = new HomieNode(id.c_str(), name.c_str(), "switch");
+        valve_node[i]->advertise("status").setName("Status").setDatatype("enum").setFormat("OPEN,CLOSED").settable();
+        valve_node[i]->advertise("runtime").setName("Manual Run Time").setDatatype("integer").setFormat("0:120").settable();
+    }
 
     // create homie node for valves
-    valve_node = new HomieNode("valves", "Irrigation valves", "valve", true, 1, NUMBER_OF_VALVES);
-    valve_node->advertise("status").setName("Status").setDatatype("enum").setFormat("OPEN,CLOSED").settable(handleValveStatus);
-    valve_node->advertise("manrt").setName("Manual Run Time").setDatatype("integer").setFormat("0:60").settable(handleValveRT);
-
-    prg_node = new HomieNode("programs", "Irrigation programs", "program", true, 1, NUMBER_OF_PROGRAMS);
-    prg_node->advertise("status").setName("Status").setDatatype("enum").setFormat("ON,OFF").settable(handleProgramStatus);
-    prg_node->advertise("name").setName("Name").setDatatype("string").settable(handleProgramName);
-    prg_node->advertise("starthour").setName("Start Hour").setDatatype("integer").setFormat("0:23").settable(handleProgramStartHour);
-    prg_node->advertise("startmin").setName("Start Minute").setDatatype("integer").setFormat("0:59").settable(handleProgramStartMin);
-    prg_node->advertise("rundays").setName("Program Run Days").setDatatype("string").settable(handleProgramRunDays);
-    prg_node->advertise("runtimes").setName("Valve Run Times").setDatatype("string").settable(handleProgramRunTimes);
+    for(int i=0; i<NUMBER_OF_PROGRAMS; i++){
+        String id = "prg"+String(i);
+        String name = "Program "+String(i);
+        prg_node[i] = new HomieNode(id.c_str(), name.c_str(), "switch");
+        prg_node[i]->advertise("status").setName("Status").setDatatype("enum").setFormat("ON,OFF").settable();
+        prg_node[i]->advertise("name").setName("Name").setDatatype("string").settable();
+        prg_node[i]->advertise("starthour").setName("Start Hour").setDatatype("integer").setFormat("0:23").settable();
+        prg_node[i]->advertise("startmin").setName("Start Minute").setDatatype("integer").setFormat("0:59").settable();
+        for(int j=0;j<7;j++){
+            String did = "day"+String(j);
+            prg_node[i]->advertise(did.c_str()).setName(dayStr(j)).setDatatype("enum").setFormat("ON,OFF").settable();
+        }
+        for(int j=0;j<NUMBER_OF_VALVES;j++){
+            String vid = "valve"+String(j);
+            String vname = "Valve "+String(j);
+            prg_node[i]->advertise(vid.c_str()).setName(vname.c_str()).setDatatype("integer").setFormat("0:120").settable();
+        }
+    }
     
     sys_node = new HomieNode("system", "Irrigation system", "irrigation");
     sys_node->advertise("dsbtill").setName("Disabled till").setDatatype("string").settable(handleSysDT);
