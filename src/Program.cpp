@@ -5,14 +5,14 @@
 #include <errno.h>
 #include <stdio.h>
 
-#define NODEBUG_PRINT
+//#define NODEBUG_PRINT
 #include "debug_print.h"
 
 Program::Program(unsigned char id){
     this->id = id;
 
-    name = strdup("Program  ");
-    *(name+8)=id+48;  // add {id} after "Program"
+    name = strdup("Program   ");
+    *(name+8) = id+48;  // add {id} after "Program"
 
     this->valveCount = 0;
 
@@ -42,7 +42,7 @@ void Program::start(){
     for (int v=0; v < valveCount;v++)
         if (runTimes[v]>0) {
             currentValve = v;
-            valves[v]->open(runTimes[v]*60, intensity);
+            valves[v]->open(runTimes[v], intensity);
             break;
         }
 }
@@ -100,7 +100,7 @@ void Program::loop(){
     
     DEBUG_PRINT("Program '%s' next valve %d.\n", getName(), currentValve);
     if (currentValve < valveCount) {
-        valves[currentValve]->open(runTimes[currentValve]*60, intensity);
+        valves[currentValve]->open(runTimes[currentValve], intensity);
     } else {
         // stop program if all valves have been cycled
         stop();
@@ -108,12 +108,14 @@ void Program::loop(){
 }
 
 unsigned char Program::setRunDay(unsigned char day, bool status){
+    DEBUG_PRINT("[setRunDay] prg=%d day=%d rd=%d\n",id,day,status);
     if (day>=7) return 0;
     runDays[day]=status;
     return 1;
 }
 
 unsigned char Program::setRunTime(unsigned char valve, unsigned int runtime){
+    DEBUG_PRINT("[setRunTime] prg=%d valve=%d rt=%d\n",id,valve,runtime);
     if (valve >= valveCount) return 0;
     runTimes[valve] = runtime;
     return 1;
@@ -126,9 +128,14 @@ void Program::addValve(Valve *valve){
 }
 
 void Program::printConfig(){
-    DEBUG_PRINT("Program config '%s': rt=%s rd=%s sh=%d sm=%d\n",
+    DEBUG_PRINT("Program config '%s': sh=%d sm=%d",
         getName(),
         getStartHour(), 
         getStartMinute()
     );
+    DEBUG_PRINT(" rt=");
+    for (int i=0;i<valveCount;i++) DEBUG_PRINT("%d,",getRunTime(i));
+    DEBUG_PRINT(" rd=");
+    for (int i=0;i<7;i++) DEBUG_PRINT("%d",getRunDay(i));
+    DEBUG_PRINT("\n");
 }

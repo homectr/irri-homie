@@ -120,7 +120,7 @@ int loadConfig() {
         for (JsonVariant vrt: prg[F("run-times")].as<JsonArray>()){
             programs[i]->setRunTime(ii,vrt.as<unsigned int>());
             ii++;
-            CONSOLE("%d/%d,",programs[i]->getRunTime(ii), vrt.as<unsigned int>());
+            CONSOLE("%d,",programs[i]->getRunTime(ii));
         }
 
         ii=0;
@@ -129,7 +129,7 @@ int loadConfig() {
         for (JsonVariant vrd: prg[F("run-days")].as<JsonArray>()){
             programs[i]->setRunDay(ii,vrd.as<unsigned char>());
             ii++;
-            CONSOLE("%d/%d:",programs[i]->getRunDay(ii), vrd.as<unsigned char>());
+            CONSOLE("%d:",programs[i]->getRunDay(ii));
         }
 
         programs[i]->setStart(

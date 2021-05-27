@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include "Valve.h"
 
-#define NODEBUG_PRINT
+//#define NODEBUG_PRINT
 #include "debug_print.h"
 
 Valve::Valve(unsigned char id){

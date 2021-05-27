@@ -15,7 +15,7 @@
 #include "handlersHomie.h"
 #include "utils.h"
 
-#define NODEBUG_PRINT
+//#define NODEBUG_PRINT
 #include "debug_print.h"
 
 unsigned char GPIOS[NUMBER_OF_VALVES] = { 16, 5, 4, 14, 12, 13 };
@@ -60,14 +60,15 @@ void setup() {
 
     // create valves
     for (int i=0; i<NUMBER_OF_VALVES; i++){
+        DEBUG_PRINT("Creating valve %d\n",i);
         valves[i] = new Valve(i);
         valves[i]->setOnOpenCB(onValveOpen);
         valves[i]->setOnCloseCB(onValveClose);
-        DEBUG_PRINT("Creating valve %d addr=%X\n",i,valves[i]);
     }
 
     // create programs
     for (int i=0; i<NUMBER_OF_PROGRAMS; i++){
+        DEBUG_PRINT("Creating program %d\n",i);
         programs[i] = new Program(i);
         programs[i]->setOnStartCB(onProgramStart);
         programs[i]->setOnStopCB(onProgramStop);
@@ -78,6 +79,7 @@ void setup() {
     Homie_setFirmware("Irrigation", "1.0.0");
     Homie.setGlobalInputHandler(updateHandler);
 
+    DEBUG_PRINT("Configuring valve properties\n");
     for(int i=0; i<NUMBER_OF_VALVES; i++){
         String id = "valve"+String(i);
         String name = "Valve "+String(i);
@@ -87,6 +89,7 @@ void setup() {
     }
 
     // create homie node for valves
+    DEBUG_PRINT("Configuring program properties\n");
     for(int i=0; i<NUMBER_OF_PROGRAMS; i++){
         String id = "prg"+String(i);
         String name = "Program "+String(i);
@@ -106,6 +109,7 @@ void setup() {
         }
     }
     
+    DEBUG_PRINT("Configuring system properties\n");
     sys_node = new HomieNode("system", "Irrigation system", "irrigation");
     sys_node->advertise("dsbtill").setName("Disabled till").setDatatype("string").settable(handleSysDT);
     sys_node->advertise("intensity").setName("Irrigatin intensity").setDatatype("integer").setFormat("0:200").setUnit("%").settable(handleSysIntensity);
@@ -113,12 +117,14 @@ void setup() {
     Homie.onEvent(onHomieEvent);
     Homie.setup();
 
+    DEBUG_PRINT("Starting NTP client\n");
     timeClient.begin();
 
+    DEBUG_PRINT("Printing program configuration\n");
     for(int i=0;i<NUMBER_OF_PROGRAMS;i++)
         programs[i]->printConfig();
 
-    setTime(8,30,0,27,5,2021);
+    setTime(8,30,0,27,5,2021); // FIXME
     //setSyncProvider(getNTPtime);
 
 }

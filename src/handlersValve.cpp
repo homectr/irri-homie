@@ -3,32 +3,34 @@
 #include "settings.h"
 #include "Valve.h"
 
-#define NODEBUG_PRINT
+//#define NODEBUG_PRINT
 #include "debug_print.h"
 
 extern Valve* valves[NUMBER_OF_VALVES];
 extern const String opts;
 extern const unsigned char negativeOpts;
 extern const unsigned char GPIOS[NUMBER_OF_VALVES];
-extern HomieNode* valve_node;
+extern HomieNode* valve_node[NUMBER_OF_VALVES];
 
 void onValveOpen(unsigned char valveId){
-    DEBUG_PRINT("[onValveOpen]\n");
+    DEBUG_PRINT("[onValveOpen] id=%d\n",valveId);
+    if (valveId >= NUMBER_OF_VALVES) return;  // if it's not a valid range
     // switch valve on
     digitalWrite(GPIOS[valveId], 1);
 
     // update Homie property
-    if (Homie.isConnected()) valve_node->setProperty("status").setRange(valveId).send("OPEN");
+    if (Homie.isConnected()) valve_node[valveId]->setProperty("status").send("OPEN");
     Homie.getLogger() << "Valve " << valveId << " is OPEN" << endl;
 }
 
 void onValveClose(unsigned char valveId){
-    DEBUG_PRINT("[onValveClose]\n");
+    DEBUG_PRINT("[onValveClose] id=%d\n",valveId);
+    if (valveId >= NUMBER_OF_VALVES) return;  // if it's not a valid range
     // switch valve off
     digitalWrite(GPIOS[valveId], 0);
 
     // update Homie property
-    if (Homie.isConnected()) valve_node->setProperty("status").setRange(valveId).send("CLOSED");
+    if (Homie.isConnected()) valve_node[valveId]->setProperty("status").send("CLOSED");
     Homie.getLogger() << "Valve " << valveId << " is CLOSED" << endl;
 }
 
@@ -48,15 +50,13 @@ bool handleValveStatus(unsigned char valveIdx, const String& value) {
     return true;
 }
 
-bool handleValveRT(const HomieRange& range, const String& value){
-    if (!range.isRange) return false;  // if it's not a range
-    if (range.index < 1 || range.index > NUMBER_OF_VALVES) return false;  // if it's not a valid range
+bool handleValveRT(unsigned char valveId, const String& value){
+    if (valveId > NUMBER_OF_VALVES) return false;  // if it's not a valid range
 
-    unsigned char valveId = range.index-1;
     int t = value.toInt();
     valves[valveId]->setRunTime(t*60);
 
-    if (Homie.isConnected()) valve_node->setProperty("manrt").setRange(valveId).send(String(t));
+    if (Homie.isConnected()) valve_node[valveId]->setProperty("runtime").send(String(t));
     Homie.getLogger() << "Valve runtime" << valveId << " set to " << t << endl;
 
     return true;
