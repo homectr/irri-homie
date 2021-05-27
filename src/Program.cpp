@@ -128,14 +128,24 @@ void Program::addValve(Valve *valve){
 }
 
 void Program::printConfig(){
-    DEBUG_PRINT("Program config '%s': sh=%d sm=%d",
+    CONSOLE("Program config '%s': sh=%d sm=%d",
         getName(),
         getStartHour(), 
         getStartMinute()
     );
-    DEBUG_PRINT(" rt=");
-    for (int i=0;i<valveCount;i++) DEBUG_PRINT("%d,",getRunTime(i));
-    DEBUG_PRINT(" rd=");
-    for (int i=0;i<7;i++) DEBUG_PRINT("%d",getRunDay(i));
-    DEBUG_PRINT("\n");
+    CONSOLE(" rt=");
+    for (int i=0; i < valveCount; i++) CONSOLE("%d,",getRunTime(i));
+    CONSOLE(" rd=");
+    for (int i=0; i<7; i++) CONSOLE("%d",getRunDay(i));
+    CONSOLE("\n");
 }
+
+unsigned int Program::getRunTime(unsigned char valve){
+    DEBUG_PRINT("[getRT] prg=%d cnt=%d valve=%d\n",id, valveCount, valve);
+    return valve<valveCount ? runTimes[valve] : 0;
+};
+unsigned char Program::getRunDay(unsigned char day){
+    DEBUG_PRINT("[getRD] prg=%d day=%d\n",id,day);
+    return day<7 ? runDays[day] : 0;
+};
+

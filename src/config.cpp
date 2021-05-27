@@ -118,17 +118,21 @@ int loadConfig() {
         CONSOLE(" rt=");
         int ii=0;
         for (JsonVariant vrt: prg[F("run-times")].as<JsonArray>()){
-            programs[i]->setRunTime(ii,vrt.as<unsigned int>());
-            ii++;
+            unsigned int rt = vrt | 0;
+            programs[i]->setRunTime(ii,rt);
             CONSOLE("%d,",programs[i]->getRunTime(ii));
+            ii++;
+            
         }
 
         ii=0;
         CONSOLE(" rd=");
         for (JsonVariant vrd: prg[F("run-days")].as<JsonArray>()){
-            programs[i]->setRunDay(ii,vrd.as<unsigned char>());
-            ii++;
+            unsigned char rd = vrd | 0;
+            programs[i]->setRunDay(ii,rd);
             CONSOLE("%d:",programs[i]->getRunDay(ii));
+            ii++;
+            
         }
 
         programs[i]->setStart(
