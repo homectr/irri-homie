@@ -113,7 +113,7 @@ unsigned char Program::setRunDay(unsigned char day, bool status){
     return 1;
 }
 
-unsigned char Program::setRunTime(unsigned char valve, unsigned char runtime){
+unsigned char Program::setRunTime(unsigned char valve, unsigned int runtime){
     if (valve >= valveCount) return 0;
     runTimes[valve] = runtime;
     return 1;

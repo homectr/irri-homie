@@ -22,7 +22,7 @@ class Program {
         unsigned char startMin = 0;
 
         // how long (in seconds) should each valve be open
-        unsigned char runTimes[NUMBER_OF_VALVES];
+        unsigned int runTimes[NUMBER_OF_VALVES];
 
         // which days of a week should program run, starting with Sunday
         unsigned char runDays[7] = {0,0,0,0,0,0,0};
@@ -54,14 +54,14 @@ class Program {
         void stop();
         void loop();
         void setStart(unsigned char hour, unsigned char minute){startHour = hour; startMin = minute;};
-        unsigned char setRunTime(unsigned char valve, unsigned char runtime);
+        unsigned char setRunTime(unsigned char valve, unsigned int runtime);
         unsigned char setRunDay(unsigned char day, bool status);
         void setIntensity(unsigned char i){intensity = i;};
         void setOnStartCB(program_cb_t cb){onStart = cb;};
         void setOnStopCB(program_cb_t cb){onStop = cb;};
         void setName(const char *name);
         const char* getName(){return name;};
-        unsigned char getRunTime(unsigned char valve){return valve<valveCount ? runTimes[valve] : 0;};
+        unsigned int getRunTime(unsigned char valve){return valve<valveCount ? runTimes[valve] : 0;};
         unsigned char getRunDay(unsigned char day){return day<7 ? runDays[day] : 0;};
         unsigned char getStartHour(){return startHour;};
         unsigned char getStartMinute(){return startMin;};

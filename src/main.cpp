@@ -76,7 +76,7 @@ void setup() {
     }
 
     Homie_setFirmware("Irrigation", "1.0.0");
-    Homie.setGlobalInputHandler(eventHandler);
+    Homie.setGlobalInputHandler(updateHandler);
 
     for(int i=0; i<NUMBER_OF_VALVES; i++){
         String id = "valve"+String(i);

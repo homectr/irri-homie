@@ -2,10 +2,10 @@
     "settings": {
         "intensity": 120,
         "disabled-till": 2,
-        "valves":[10,11,12,13,14,15],
+        "valves":[600,601,602,603,604,605],
         "programs":[
-            { "run-times":[1,0,2,0,1,0], "run-days":[1,1,1,1,1,1,1], "start-hour": 8, "start-min": 31 },
-            { "run-times":[1,5,1,1,1,20], "run-days":[0,0,0,0,0,0,0], "start-hour": 8, "start-min": 35 }
+            { "run-times":[60,0,120,0,60,0], "run-days":[1,1,1,1,1,1,1], "start-hour": 8, "start-min": 31 },
+            { "run-times":[60,300,60,60,60,1200], "run-days":[0,0,0,0,0,0,0], "start-hour": 8, "start-min": 35 }
         ]
     }
   }
