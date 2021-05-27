@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include "Valve.h"
 
-//#define NODEBUG_PRINT
+#define NODEBUG_PRINT
 #include "debug_print.h"
 
 Valve::Valve(unsigned char id){
@@ -13,7 +13,6 @@ Valve::Valve(unsigned char id){
 
     snprintf(is,20,"Valve %d",id);
     name = strdup(is);
-
 }
 
 void Valve::close(){

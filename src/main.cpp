@@ -15,7 +15,7 @@
 #include "handlersHomie.h"
 #include "utils.h"
 
-//#define NODEBUG_PRINT
+#define NODEBUG_PRINT
 #include "debug_print.h"
 
 unsigned char GPIOS[NUMBER_OF_VALVES] = { 16, 5, 4, 14, 12, 13 };
@@ -123,16 +123,22 @@ void setup() {
 
 }
 
-#define CHECK_INTERVAL 60000
+#define CHECK_INTERVAL 5000
+#define ALIVE_INTERVAL 30000
 unsigned long lastCheck = millis()-1000000;
+unsigned long alive = millis() - 1000000;
 char buf[25];
 
 void loop() {
     Homie.loop();
 
-    if (configLoaded && (millis()-lastCheck) > (long)CHECK_INTERVAL) {
+    if (millis()-alive > (long)ALIVE_INTERVAL){
         dt2ISO(buf,25,now(),true,NULL);
-        CONSOLE("Current time=%s\n",buf);
+        CONSOLE("%s alive\n",buf);
+        alive=millis();
+    }
+
+    if (configLoaded && (millis()-lastCheck) > (long)CHECK_INTERVAL) {
 
         DEBUG_PRINT("Checking valves %d:%d\n",hour(), minute());
         for (int i=0;i<NUMBER_OF_VALVES;i++) 
@@ -145,9 +151,9 @@ void loop() {
         } else {
             CONSOLE("Programs disabled till %ld\n", sys_disabledTill );
         }
+        DEBUG_PRINT("Checking end\n");
 
         lastCheck=millis();
-        DEBUG_PRINT("Checking end\n");
     }
 
     if (!configLoaded && Homie.isConfigured()){
