@@ -96,7 +96,7 @@ void setup() {
         prg_node[i]->advertise("startmin").setName("Start Minute").setDatatype("integer").setFormat("0:59").settable();
         for(int j=0;j<7;j++){
             String did = "day"+String(j);
-            prg_node[i]->advertise(did.c_str()).setName(dayStr(j)).setDatatype("boolean").settable();
+            prg_node[i]->advertise(did.c_str()).setName(dayStr(j+1)).setDatatype("boolean").settable();
         }
         for(int j=0;j<NUMBER_OF_VALVES;j++){
             prg_node[i]->advertise(valves[j]->getIdStr()).setName(valves[j]->getName()).setDatatype("integer").setFormat("0:120").settable();
