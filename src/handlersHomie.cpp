@@ -8,8 +8,8 @@ extern Program* programs[NUMBER_OF_PROGRAMS];
 extern Valve* valves[NUMBER_OF_VALVES];
 extern const String opts;
 extern const unsigned char negativeOpts;
-extern HomieNode* prg_node;
-extern HomieNode* valve_node;
+extern HomieNode* prg_node[NUMBER_OF_PROGRAMS];
+extern HomieNode* valve_node[NUMBER_OF_VALVES];
 extern HomieNode* sys_node;
 extern NTPClient timeClient;
 
@@ -18,17 +18,23 @@ extern time_t sys_disabledTill;
 
 void setDeviceProperties(){
     for(int i=0;i<NUMBER_OF_VALVES;i++){
-        valve_node->setProperty("manrt").setRange(i).send(String(valves[i]->getRunTime()));
-        valve_node->setProperty("status").setRange(i).send(valves[i]->isOpen()?"OPEN":"CLOSED");
+        valve_node[i]->setProperty("runtime").send(String(valves[i]->getRunTime()));
+        valve_node[i]->setProperty("status").send(valves[i]->isOpen()?"1":"0");
     }
 
     for(int i=0;i<NUMBER_OF_PROGRAMS;i++){
-        prg_node->setProperty("name").setRange(i).send(String(programs[i]->getName()));
-        prg_node->setProperty("runtimes").setRange(i).send(programs[i]->getRunTimes());
-        prg_node->setProperty("rundays").setRange(i).send(programs[i]->getRunDays());
-        prg_node->setProperty("starthour").setRange(i).send(String(programs[i]->getStartHour()));
-        prg_node->setProperty("startmin").setRange(i).send(String(programs[i]->getStartMinute()));
-        prg_node->setProperty("status").setRange(i).send(programs[i]->isRunning()?"ON":"OFF");
+        prg_node[i]->setProperty("name").send(String(programs[i]->getName()));
+        for(int j=0;j<7;j++){
+            String did = "day"+String(j);
+            prg_node[i]->setProperty(did.c_str()).send(programs[i]->getRunDay(j)?"1":"0");
+        }
+        for(int j=0;j<NUMBER_OF_VALVES;j++){
+            String vid = "valve"+String(j);
+            prg_node[i]->setProperty(vid.c_str()).send(String(programs[i]->getRunTime(j)));
+        }        
+        prg_node[i]->setProperty("starthour").send(String(programs[i]->getStartHour()));
+        prg_node[i]->setProperty("startmin").send(String(programs[i]->getStartMinute()));
+        prg_node[i]->setProperty("status").send(programs[i]->isRunning()?"1":"0");
     }
 
     sys_node->setProperty("intensity").send(String(sys_intensity));

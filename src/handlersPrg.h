@@ -6,10 +6,10 @@
 void onProgramStart(unsigned char progId);
 void onProgramStop(unsigned char progId);
 
-bool handleProgramStatus(const HomieRange& range, const String& value);
-bool handleProgramName(const HomieRange& range, const String& value);
-bool handleProgramStartHour(const HomieRange& range, const String& value);
-bool handleProgramStartMin(const HomieRange& range, const String& value);
-bool handleProgramRunDays(const HomieRange& range, const String& value);
-bool handleProgramRunTimes(const HomieRange& range, const String& value);
+bool handleProgramStatus(unsigned char progId, const String& value);
+bool handleProgramName(unsigned char progId, const String& value);
+bool handleProgramStartHour(unsigned char progId, const String& value);
+bool handleProgramStartMin(unsigned char progId, const String& value);
+bool handleProgramRunDays(unsigned char progId, unsigned char day, bool value);
+bool handleProgramRunTimes(unsigned char progId, unsigned char valve, unsigned char runtime);
 

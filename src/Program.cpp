@@ -11,13 +11,25 @@
 Program::Program(unsigned char id){
     this->id = id;
 
-    name = strdup("Program  ");
-    *(name+8)=id+48;  // add {id} after "Program"
+    char is[20];
+    snprintf(is,20,"prg%d",id);
+    idStr = strdup(is);
 
-    this->valveCount = 0;
+    snprintf(is,20,"Program %d",id);
+    name = strdup(is);
+
+    valveCount = 0;
 
     // set default program run-time to 0 min
-    for(int i=0;i<NUMBER_OF_VALVES;i++) this->runTimes[i] = 0;
+    for(int i=0; i < NUMBER_OF_VALVES; i++) {
+        runTimes[i] = 0;
+        valveNames[i] = NULL;
+    }
+
+    for (int i=0;i<7;i++){
+        String rn = name + String(" ") + dayStr(i+1);
+        setRunDayName(i, rn.c_str());
+    }
 
     currentValve = 0;
     status = 0;
@@ -42,7 +54,7 @@ void Program::start(){
     for (int v=0; v < valveCount;v++)
         if (runTimes[v]>0) {
             currentValve = v;
-            valves[v]->open(runTimes[v]*60, intensity);
+            valves[v]->open(runTimes[v], intensity);
             break;
         }
 }
@@ -52,7 +64,7 @@ void Program::stop(){
     currentValve = 0;
     DEBUG_PRINT("Stopping program '%s'\n", this->getName());
     // close all valves on program stop
-    for (char i = 0; i < valveCount;i++) 
+    for (int i = 0; i < valveCount;i++) 
         valves[i]->close();
     if (onStop) onStop(id);
 
@@ -100,74 +112,70 @@ void Program::loop(){
     
     DEBUG_PRINT("Program '%s' next valve %d.\n", getName(), currentValve);
     if (currentValve < valveCount) {
-        valves[currentValve]->open(runTimes[currentValve]*60, intensity);
+        valves[currentValve]->open(runTimes[currentValve], intensity);
     } else {
         // stop program if all valves have been cycled
         stop();
     }
 }
 
-unsigned char Program::setRunDays(const char* runDays){
-    unsigned i=0;
-    while (i<7 && *(runDays+i)) {
-        this->runDays[i] = *(runDays+i)=='1'?1:0;
-        i++;
-    }
+unsigned char Program::setRunDay(unsigned char day, bool status){
+    DEBUG_PRINT("[setRunDay] prg=%d day=%d rd=%d\n",id,day,status);
+    if (day>=7) return 0;
+    runDays[day]=status;
     return 1;
 }
 
-unsigned char Program::setRunTimes(const char* runTimes){
-
-    char* rt = strdup(runTimes);
-    char* rs=rt;
-    char* re=rt;
-    for (unsigned char i=0;i<NUMBER_OF_VALVES;i++){
-        rs = re;
-        // find next colon or end of string
-        while (*re && *re != ',') re++;
-        if (*re == ',') re++;
-        // if next colon found
-        if (re != rs) {
-            char* nn;
-            long t = strtol(rs, &nn, 10);
-            if (errno == ERANGE) {
-                free(rt);
-                return 0;
-            } else {
-                this->runTimes[i] = t;
-            }
-        }
-    }
-    free(rt);
+unsigned char Program::setRunTime(unsigned char valve, unsigned int runtime){
+    DEBUG_PRINT("[setRunTime] prg=%d valve=%d rt=%d\n",id,valve,runtime);
+    if (valve >= valveCount) return 0;
+    runTimes[valve] = runtime;
     return 1;
-}
-
-String Program::getRunDays(){
-    String s = "";
-    for (int i=0;i<7;i++)
-        s += runDays[i]?'1':'0';
-    return s;
-}
-
-String Program::getRunTimes(){
-    String s = "";
-    for(int i=0;i<NUMBER_OF_VALVES;i++)
-        s += String(runTimes[i])+", ";
-    return s;
 }
 
 void Program::addValve(Valve *valve){
+    DEBUG_PRINT("[addValve] prg=%d  count=%d id=%d\n",id, valveCount,valve->getIdStr());
     if (valveCount>=NUMBER_OF_VALVES) return;
     valves[valveCount] = valve;
+    String vn = name + String(" ") + valve->getName();
+    setValveName(valveCount,vn.c_str());
     valveCount++;
 }
 
 void Program::printConfig(){
-    DEBUG_PRINT("Program config '%s': rt=%s rd=%s sh=%d sm=%d\n",
+    CONSOLE("Program %d name='%s': sh=%d sm=%d\n",
+        id,
         getName(),
-        getRunTimes().c_str(), 
-        getRunDays().c_str(), 
         getStartHour(), 
         getStartMinute()
     );
+    CONSOLE(" Valves=\n");
+    for (int i=0; i < valveCount; i++) CONSOLE(" %d rt=%d name=%s\n",i,getRunTime(i),getValveName(i));
+    CONSOLE(" RunDays=");
+    for (int i=0; i<7; i++) CONSOLE(" %d on=%d name=%s\n",i, getRunDay(i), getRunDayName(i));
+
 }
+
+unsigned int Program::getRunTime(unsigned char valve){
+    DEBUG_PRINT("[getRT] prg=%d cnt=%d valve=%d\n",id, valveCount, valve);
+    return valve<valveCount ? runTimes[valve] : 0;
+};
+
+unsigned char Program::getRunDay(unsigned char day){
+    DEBUG_PRINT("[getRD] prg=%d day=%d\n",id,day);
+    return day<7 ? runDays[day] : 0;
+};
+
+void Program::setValveName(unsigned char valve, const char* name){
+    if (valveNames[valve]) free(valveNames[valve]);
+    valveNames[valve] = strdup(name);
+}
+
+void Program::setRunDayName(unsigned char day, const char* name){
+    if (runDayNames[day]) free(runDayNames[day]);
+    runDayNames[day] = strdup(name);
+
+};
+const char* Program::getRunDayName(unsigned char day){
+    return day<7 ? runDayNames[day] : NULL;
+};

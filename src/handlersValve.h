@@ -6,5 +6,5 @@
 void onValveOpen(unsigned char valveId);
 void onValveClose(unsigned char valveId);
 
-bool handleValveStatus(const HomieRange& range, const String& value);
+bool handleValveStatus(unsigned char valveIdx, const String& value);
 bool handleValveRT(const HomieRange& range, const String& value);

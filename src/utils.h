@@ -13,3 +13,6 @@
  * @return 1 if no error ocurred, 0 if error ocurred
  */
 int dt2ISO(char* buffer, size_t size, time_t datetime, bool includeTime, const char* tz);
+
+// return current ISO date-time string
+const char* nowStr();
