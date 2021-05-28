@@ -15,7 +15,7 @@
 #include "handlersHomie.h"
 #include "utils.h"
 
-//#define NODEBUG_PRINT
+#define NODEBUG_PRINT
 #include "debug_print.h"
 
 unsigned char GPIOS[NUMBER_OF_VALVES] = { 16, 5, 4, 14, 12, 13 };
@@ -39,8 +39,6 @@ bool configLoaded = false;
 
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", 3600);
-
-const char* DaysOfWeek[7] = {"Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"};
 
 time_t getNTPtime(){
     return 0;
@@ -74,11 +72,7 @@ void setup() {
         programs[i] = new Program(i);
         programs[i]->setOnStartCB(onProgramStart);
         programs[i]->setOnStopCB(onProgramStop);
-        for (int j=0; j<NUMBER_OF_VALVES; j++){
-            programs[i]->addValve(valves[j]);
-            String vn = programs[i]->getName() + String(" ") + valves[j]->getName();
-            programs[i]->setValveName(j, vn.c_str());
-        }
+        for (int j=0;j<NUMBER_OF_VALVES;j++) programs[i]->addValve(valves[j]);
     }
 
     Homie_setFirmware("Irrigation", "1.0.0");

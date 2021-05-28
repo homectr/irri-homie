@@ -18,10 +18,18 @@ Program::Program(unsigned char id){
     snprintf(is,20,"Program %d",id);
     name = strdup(is);
 
-    this->valveCount = 0;
+    valveCount = 0;
 
     // set default program run-time to 0 min
-    for(int i=0;i<NUMBER_OF_VALVES;i++) this->runTimes[i] = 0;
+    for(int i=0; i < NUMBER_OF_VALVES; i++) {
+        runTimes[i] = 0;
+        valveNames[i] = NULL;
+    }
+
+    for (int i=0;i<7;i++){
+        String rn = name + String(" ") + dayStr(i+1);
+        setRunDayName(i, rn.c_str());
+    }
 
     currentValve = 0;
     status = 0;
@@ -126,22 +134,26 @@ unsigned char Program::setRunTime(unsigned char valve, unsigned int runtime){
 }
 
 void Program::addValve(Valve *valve){
+    DEBUG_PRINT("[addValve] prg=%d  count=%d id=%d\n",id, valveCount,valve->getIdStr());
     if (valveCount>=NUMBER_OF_VALVES) return;
     valves[valveCount] = valve;
+    String vn = name + String(" ") + valve->getName();
+    setValveName(valveCount,vn.c_str());
     valveCount++;
 }
 
 void Program::printConfig(){
-    CONSOLE("Program config '%s': sh=%d sm=%d",
+    CONSOLE("Program %d name='%s': sh=%d sm=%d\n",
+        id,
         getName(),
         getStartHour(), 
         getStartMinute()
     );
-    CONSOLE(" rt=");
-    for (int i=0; i < valveCount; i++) CONSOLE("%d,",getRunTime(i));
-    CONSOLE(" rd=");
-    for (int i=0; i<7; i++) CONSOLE("%d",getRunDay(i));
-    CONSOLE("\n");
+    CONSOLE(" Valves=\n");
+    for (int i=0; i < valveCount; i++) CONSOLE(" %d rt=%d name=%s\n",i,getRunTime(i),getValveName(i));
+    CONSOLE(" RunDays=");
+    for (int i=0; i<7; i++) CONSOLE(" %d on=%d name=%s\n",i, getRunDay(i), getRunDayName(i));
+
 }
 
 unsigned int Program::getRunTime(unsigned char valve){
