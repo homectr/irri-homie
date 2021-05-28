@@ -15,7 +15,7 @@
 #include "handlersHomie.h"
 #include "utils.h"
 
-#define NODEBUG_PRINT
+//#define NODEBUG_PRINT
 #include "debug_print.h"
 
 unsigned char GPIOS[NUMBER_OF_VALVES] = { 16, 5, 4, 14, 12, 13 };
@@ -39,6 +39,8 @@ bool configLoaded = false;
 
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", 3600);
+
+const char* DaysOfWeek[7] = {"Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"};
 
 time_t getNTPtime(){
     return 0;
@@ -72,8 +74,11 @@ void setup() {
         programs[i] = new Program(i);
         programs[i]->setOnStartCB(onProgramStart);
         programs[i]->setOnStopCB(onProgramStop);
-        for (int j=0; j<NUMBER_OF_VALVES; j++)
+        for (int j=0; j<NUMBER_OF_VALVES; j++){
             programs[i]->addValve(valves[j]);
+            String vn = programs[i]->getName() + String(" ") + valves[j]->getName();
+            programs[i]->setValveName(j, vn.c_str());
+        }
     }
 
     Homie_setFirmware("Irrigation", "1.0.0");
@@ -96,17 +101,18 @@ void setup() {
         prg_node[i]->advertise("startmin").setName("Start Minute").setDatatype("integer").setFormat("0:59").settable();
         for(int j=0;j<7;j++){
             String did = "day"+String(j);
-            prg_node[i]->advertise(did.c_str()).setName(dayStr(j+1)).setDatatype("boolean").settable();
+            prg_node[i]->advertise(did.c_str()).setName(programs[i]->getRunDayName(j)).setDatatype("boolean").settable();
         }
         for(int j=0;j<NUMBER_OF_VALVES;j++){
-            prg_node[i]->advertise(valves[j]->getIdStr()).setName(valves[j]->getName()).setDatatype("integer").setFormat("0:120").settable();
+            String vid = valves[j]->getIdStr() + String("rt");
+            prg_node[i]->advertise(vid.c_str()).setName(programs[i]->getValveName(j)).setDatatype("integer").setFormat("0:120").settable();
         }
     }
     
     DEBUG_PRINT("Configuring system properties\n");
     sys_node = new HomieNode("system", "Irrigation system", "irrigation");
     sys_node->advertise("dsbtill").setName("Disabled till").setDatatype("string").settable(handleSysDT);
-    sys_node->advertise("intensity").setName("Irrigatin intensity").setDatatype("integer").setFormat("0:200").setUnit("%").settable(handleSysIntensity);
+    sys_node->advertise("intensity").setName("Irrigation intensity").setDatatype("integer").setFormat("0:200").setUnit("%").settable(handleSysIntensity);
 
     Homie.onEvent(onHomieEvent);
     Homie.setup();

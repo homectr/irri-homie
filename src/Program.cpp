@@ -148,8 +148,22 @@ unsigned int Program::getRunTime(unsigned char valve){
     DEBUG_PRINT("[getRT] prg=%d cnt=%d valve=%d\n",id, valveCount, valve);
     return valve<valveCount ? runTimes[valve] : 0;
 };
+
 unsigned char Program::getRunDay(unsigned char day){
     DEBUG_PRINT("[getRD] prg=%d day=%d\n",id,day);
     return day<7 ? runDays[day] : 0;
 };
 
+void Program::setValveName(unsigned char valve, const char* name){
+    if (valveNames[valve]) free(valveNames[valve]);
+    valveNames[valve] = strdup(name);
+}
+
+void Program::setRunDayName(unsigned char day, const char* name){
+    if (runDayNames[day]) free(runDayNames[day]);
+    runDayNames[day] = strdup(name);
+
+};
+const char* Program::getRunDayName(unsigned char day){
+    return day<7 ? runDayNames[day] : NULL;
+};

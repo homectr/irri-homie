@@ -27,8 +27,14 @@ class Program {
         // how long (in seconds) should each valve be open
         unsigned int runTimes[NUMBER_OF_VALVES];
 
+        // array containing valve names - for Homie
+        char* valveNames[NUMBER_OF_VALVES];
+
         // which days of a week should program run, starting with Sunday
         unsigned char runDays[7] = {0,0,0,0,0,0,0};
+
+        // array containing runday names - for Homie
+        char* runDayNames[7] = {NULL,NULL,NULL,NULL,NULL,NULL,NULL};
 
         // array of pointers to valves
         Valve* valves[NUMBER_OF_VALVES];
@@ -53,25 +59,43 @@ class Program {
 
     public:
         Program(unsigned char id);
+
+        const char* getIdStr(){return idStr;};
+
         void start();
         void stop();
         void loop();
+
+        void setName(const char *name);
+        const char* getName(){return name;};
+
         void setStart(unsigned char hour, unsigned char minute){startHour = hour; startMin = minute;};
+        unsigned char getStartHour(){return startHour;};
+        unsigned char getStartMinute(){return startMin;};
+
         unsigned char setRunTime(unsigned char valve, unsigned int runtime);
+        unsigned int getRunTime(unsigned char valve);
+
+        void setValveName(unsigned char valve, const char* name);
+        const char* getValveName(unsigned char valve){return valve<NUMBER_OF_VALVES?valveNames[valve]:NULL;};
+
         unsigned char setRunDay(unsigned char day, bool status);
+        unsigned char getRunDay(unsigned char day);
+
+        void setRunDayName(unsigned char day, const char* name);
+        const char* getRunDayName(unsigned char day);
+
         void setIntensity(unsigned char i){intensity = i;};
         void setOnStartCB(program_cb_t cb){onStart = cb;};
         void setOnStopCB(program_cb_t cb){onStop = cb;};
-        void setName(const char *name);
-        const char* getName(){return name;};
-        unsigned int getRunTime(unsigned char valve);
-        unsigned char getRunDay(unsigned char day);
-        unsigned char getStartHour(){return startHour;};
-        unsigned char getStartMinute(){return startMin;};
+        
         unsigned char shouldStart(time_t datetime);
         unsigned char isRunning(){return status;};
+
         void addValve(Valve* valve);
+
         void printConfig();
-        const char* getIdStr(){return idStr;};
+
+        
 
 };
