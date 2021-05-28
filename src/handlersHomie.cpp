@@ -19,14 +19,14 @@ extern time_t sys_disabledTill;
 void setDeviceProperties(){
     for(int i=0;i<NUMBER_OF_VALVES;i++){
         valve_node[i]->setProperty("runtime").send(String(valves[i]->getRunTime()));
-        valve_node[i]->setProperty("status").send(valves[i]->isOpen()?"OPEN":"CLOSED");
+        valve_node[i]->setProperty("status").send(valves[i]->isOpen()?"1":"0");
     }
 
     for(int i=0;i<NUMBER_OF_PROGRAMS;i++){
         prg_node[i]->setProperty("name").send(String(programs[i]->getName()));
         for(int j=0;j<7;j++){
             String did = "day"+String(j);
-            prg_node[i]->setProperty(did.c_str()).send(programs[i]->getRunDay(j)?"ON":"OFF");
+            prg_node[i]->setProperty(did.c_str()).send(programs[i]->getRunDay(j)?"1":"0");
         }
         for(int j=0;j<NUMBER_OF_VALVES;j++){
             String vid = "valve"+String(j);
@@ -34,7 +34,7 @@ void setDeviceProperties(){
         }        
         prg_node[i]->setProperty("starthour").send(String(programs[i]->getStartHour()));
         prg_node[i]->setProperty("startmin").send(String(programs[i]->getStartMinute()));
-        prg_node[i]->setProperty("status").send(programs[i]->isRunning()?"ON":"OFF");
+        prg_node[i]->setProperty("status").send(programs[i]->isRunning()?"1":"0");
     }
 
     sys_node->setProperty("intensity").send(String(sys_intensity));
