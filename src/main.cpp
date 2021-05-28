@@ -82,7 +82,7 @@ void setup() {
     DEBUG_PRINT("Configuring valve properties\n");
     for(int i=0; i<NUMBER_OF_VALVES; i++){
         valve_node[i] = new HomieNode(valves[i]->getIdStr(), valves[i]->getName(), "switch");
-        valve_node[i]->advertise("status").setName("Status").setDatatype("enum").setFormat("OPEN,CLOSED").settable();
+        valve_node[i]->advertise("status").setName("Status").setDatatype("boolean").settable();
         valve_node[i]->advertise("runtime").setName("Manual Run Time").setDatatype("integer").setFormat("0:120").settable();
     }
 
@@ -90,13 +90,13 @@ void setup() {
     DEBUG_PRINT("Configuring program properties\n");
     for(int i=0; i<NUMBER_OF_PROGRAMS; i++){
         prg_node[i] = new HomieNode(programs[i]->getIdStr(), programs[i]->getName(), "switch");
-        prg_node[i]->advertise("status").setName("Status").setDatatype("enum").setFormat("ON,OFF").settable();
+        prg_node[i]->advertise("status").setName("Status").setDatatype("boolean").settable();
         prg_node[i]->advertise("name").setName("Name").setDatatype("string").settable();
         prg_node[i]->advertise("starthour").setName("Start Hour").setDatatype("integer").setFormat("0:23").settable();
         prg_node[i]->advertise("startmin").setName("Start Minute").setDatatype("integer").setFormat("0:59").settable();
         for(int j=0;j<7;j++){
             String did = "day"+String(j);
-            prg_node[i]->advertise(did.c_str()).setName(dayStr(j)).setDatatype("enum").setFormat("ON,OFF").settable();
+            prg_node[i]->advertise(did.c_str()).setName(dayStr(j)).setDatatype("boolean").settable();
         }
         for(int j=0;j<NUMBER_OF_VALVES;j++){
             prg_node[i]->advertise(valves[j]->getIdStr()).setName(valves[j]->getName()).setDatatype("integer").setFormat("0:120").settable();
@@ -123,7 +123,7 @@ void setup() {
 
 }
 
-#define CHECK_INTERVAL 5000
+#define CHECK_INTERVAL 2000
 #define ALIVE_INTERVAL 30000
 unsigned long lastCheck = millis()-1000000;
 unsigned long alive = millis() - 1000000;

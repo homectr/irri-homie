@@ -20,9 +20,9 @@ void onValveOpen(unsigned char valveId){
     digitalWrite(GPIOS[valveId], 1);
 
     // update Homie property
-    if (Homie.isConnected()) valve_node[valveId]->setProperty("status").send("OPEN");
+    if (Homie.isConnected()) valve_node[valveId]->setProperty("status").send("1");
 
-    Homie.getLogger() << nowStr() << " Valve " << valveId << " is OPEN" << endl;
+    Homie.getLogger() << nowStr() << " Valve " << valveId << " set to OPEN" << endl;
 }
 
 void onValveClose(unsigned char valveId){
@@ -32,8 +32,8 @@ void onValveClose(unsigned char valveId){
     digitalWrite(GPIOS[valveId], 0);
 
     // update Homie property
-    if (Homie.isConnected()) valve_node[valveId]->setProperty("status").send("CLOSED");
-    Homie.getLogger() << nowStr() << " Valve " << valveId << " is CLOSED" << endl;
+    if (Homie.isConnected()) valve_node[valveId]->setProperty("status").send("0");
+    Homie.getLogger() << nowStr() << " Valve " << valveId << " set to CLOSED" << endl;
 }
 
 bool handleValveStatus(unsigned char valveIdx, const String& value) {
