@@ -143,16 +143,17 @@ void Program::addValve(Valve *valve){
 }
 
 void Program::printConfig(){
-    CONSOLE("Program %d name='%s': sh=%d sm=%d\n",
+    CONSOLE("Program %d name='%s': start=%02d:%02d ",
         id,
         getName(),
         getStartHour(), 
         getStartMinute()
     );
-    CONSOLE(" Valves=\n");
-    for (int i=0; i < valveCount; i++) CONSOLE(" %d rt=%d name=%s\n",i,getRunTime(i),getValveName(i));
-    CONSOLE(" RunDays=");
-    for (int i=0; i<7; i++) CONSOLE(" %d on=%d name=%s\n",i, getRunDay(i), getRunDayName(i));
+    CONSOLE(" rt=");
+    for (int i=0; i < valveCount; i++) CONSOLE("%d,",getRunTime(i));
+    CONSOLE(" rd=");
+    for (int i=0; i<7; i++) CONSOLE("%d,", getRunDay(i));
+    CONSOLE("\n");
 
 }
 
