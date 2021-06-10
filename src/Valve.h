@@ -1,11 +1,14 @@
 #pragma once
 
-using valve_cb_t = void(*)(unsigned char valveId);
+using valve_cb_t = void(*)(unsigned char valveId, unsigned char inverse);
 
 class Valve {
     private:
         // valve identifier
         unsigned char id;
+
+        // if inverse, then status==1 => closed
+        unsigned char inverse = 0;
 
         // valve identifier for mqtt
         char *idStr = NULL;
@@ -29,7 +32,7 @@ class Valve {
         valve_cb_t onClose = NULL;
 
     public:
-        Valve(unsigned char id);
+        Valve(unsigned char id, unsigned char inverse=0);
 
         /**
          * Opens valve for specified time (in seconds). 
@@ -67,5 +70,7 @@ class Valve {
 
         const char* getIdStr(){return idStr;};
         const char* getName(){return name;};
+
+        unsigned char isInverse(){return inverse;};
 
 };

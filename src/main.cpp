@@ -14,11 +14,10 @@
 #include "handlersSys.h"
 #include "handlersHomie.h"
 #include "utils.h"
-
 #define NODEBUG_PRINT
 #include "debug_print.h"
 
-unsigned char GPIOS[NUMBER_OF_VALVES] = { 16, 5, 4, 14, 12, 13 };
+unsigned char GPIOS[NUMBER_OF_VALVES] = { 13, 12, 14, 16, 2, 4 };
 const char* optsON = "open OPEN on ON 1";
 const char* optsOFF = "closed CLOSED off OFF 0";
 String opts = String(optsON) + " " + String(optsOFF);
@@ -36,32 +35,39 @@ unsigned char sys_intensity = 100;
 time_t sys_disabledTill = 0;
 
 bool configLoaded = false;
+bool timeConfigured = false;
 
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", 3600);
 
 time_t getNTPtime(){
-    return 0;
+    DEBUG_PRINT("%lu Syncing time ", millis());
+    DEBUG_PRINT("%s\n",timeClient.getFormattedTime().c_str());
+    return timeClient.getEpochTime();
 }
 
 void setup() {
-    for (uint8_t i = 0; i < NUMBER_OF_VALVES; i++) {
-        pinMode(GPIOS[i], OUTPUT);
-        digitalWrite(GPIOS[i], LOW);
-    }
-
     Serial.begin(115200);
     Serial << endl << endl;
 
+    for (uint8_t i = 0; i < NUMBER_OF_VALVES; i++)
+        pinMode(GPIOS[i], OUTPUT);
+
     initFS();
 
-    // TODO: NTP client
-    // TODO: Homie settings for UTC offset + time server
+    DEBUG_PRINT("Starting NTP client\n");
+    timeClient.begin();
+
+    // TODO: Homie settings for UTC offset
+    timeClient.setTimeOffset(7200);
+
+    setSyncProvider(getNTPtime);
 
     // create valves
     for (int i=0; i<NUMBER_OF_VALVES; i++){
         DEBUG_PRINT("Creating valve %d\n",i);
         valves[i] = new Valve(i);
+        valves[i]->close();
         valves[i]->setOnOpenCB(onValveOpen);
         valves[i]->setOnCloseCB(onValveClose);
     }
@@ -77,6 +83,7 @@ void setup() {
 
     Homie_setFirmware("Irrigation", "1.0.0");
     Homie.setGlobalInputHandler(updateHandler);
+    Homie.setLedPin(15, 1);
 
     DEBUG_PRINT("Configuring valve properties\n");
     for(int i=0; i<NUMBER_OF_VALVES; i++){
@@ -111,15 +118,9 @@ void setup() {
     Homie.onEvent(onHomieEvent);
     Homie.setup();
 
-    DEBUG_PRINT("Starting NTP client\n");
-    timeClient.begin();
-
     DEBUG_PRINT("Printing program configuration\n");
     for(int i=0;i<NUMBER_OF_PROGRAMS;i++)
         programs[i]->printConfig();
-
-    setTime(8,30,0,27,5,2021); // FIXME
-    //setSyncProvider(getNTPtime);
 
 }
 
@@ -130,10 +131,23 @@ unsigned long alive = millis() - 1000000;
 
 void loop() {
     Homie.loop();
+    timeClient.update();
 
     if (millis()-alive > (long)ALIVE_INTERVAL){
         CONSOLE("%s alive\n",nowStr());
         alive=millis();
+
+        if (!timeConfigured && WiFi.isConnected()){
+            CONSOLE("%s configuring time: ",nowStr());
+            if (timeClient.forceUpdate()){
+                setTime(timeClient.getEpochTime());
+                CONSOLE("%s\n",nowStr());
+                timeConfigured = true;
+            } else {
+                CONSOLE("failed\n");
+            }
+    }
+
     }
 
     if (configLoaded && (millis()-lastCheck) > (long)CHECK_INTERVAL) {

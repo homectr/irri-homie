@@ -73,8 +73,6 @@ void onHomieEvent(const HomieEvent& event) {
       break;
     case HomieEventType::WIFI_CONNECTED:
       // Do whatever you want when Wi-Fi is connected in normal mode
-      timeClient.update();
-
       // You can use event.ip, event.gateway, event.mask
       break;
     case HomieEventType::WIFI_DISCONNECTED:
