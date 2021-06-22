@@ -24,9 +24,6 @@ class Program {
         // how long (in seconds) should each valve be open
         unsigned int runTimes[NUMBER_OF_VALVES];
 
-        // array containing valve names - for Homie
-        char* valveNames[NUMBER_OF_VALVES];
-
         // which days of a week should program run, starting with Sunday
         unsigned char runDays[7] = {0,0,0,0,0,0,0};
 
@@ -67,9 +64,6 @@ class Program {
         unsigned char setRunTime(unsigned char valve, unsigned int runtime);
         unsigned int getRunTime(unsigned char valve);
 
-        void setValveName(unsigned char valve, const char* name);
-        const char* getValveName(unsigned char valve){return valve<NUMBER_OF_VALVES?valveNames[valve]:NULL;};
-
         unsigned char setRunDay(unsigned char day, bool status);
         unsigned char getRunDay(unsigned char day);
 
@@ -81,7 +75,7 @@ class Program {
         unsigned char isRunning(){return status;};
 
         void addValve(Valve* valve);
-        
+
         unsigned char isConfigured();
 
         void printConfig();

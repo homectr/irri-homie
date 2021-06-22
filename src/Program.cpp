@@ -20,7 +20,6 @@ Program::Program(unsigned char id){
     // set default program run-time to 0 min
     for(int i=0; i < NUMBER_OF_VALVES; i++) {
         runTimes[i] = 0;
-        valveNames[i] = NULL;
     }
 
     currentValve = 0;
@@ -151,11 +150,6 @@ unsigned char Program::getRunDay(unsigned char day){
     DEBUG_PRINT("[getRD] prg=%d day=%d\n",id,day);
     return day<7 ? runDays[day] : 0;
 };
-
-void Program::setValveName(unsigned char valve, const char* name){
-    if (valveNames[valve]) free(valveNames[valve]);
-    valveNames[valve] = strdup(name);
-}
 
 unsigned char Program::isConfigured(){
     unsigned char c = 0;
