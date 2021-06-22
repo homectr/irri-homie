@@ -17,8 +17,10 @@ int dt2ISO(char* buffer, size_t size, time_t dt, bool includeTime, const char* t
 static char buf[25];
 static long lastCheck = millis()-10000;
 
-const char* nowStr(){
-    if (millis()-lastCheck > 1000) dt2ISO(buf,25,now(),true,NULL);
+const char* nowStr(){ nowStr(NULL);};
+
+const char* nowStr(const char* tzAbbrev){
+    if (millis()-lastCheck > 1000) dt2ISO(buf,25,now(),true,tzAbbrev);
     return buf;
 }
 

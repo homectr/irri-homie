@@ -43,12 +43,13 @@ bool timeConfigured = false;
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", 0);
 Timezone* tz;
+TimeChangeRule *tcr;
 
-time_t getNTPtime(){
+time_t ntp2LocalTime(){
     DEBUG_PRINT("%lu Syncing time ", millis());
     DEBUG_PRINT("%s\n",timeClient.getFormattedTime().c_str());
     time_t utc = timeClient.getEpochTime();
-    return tz ? tz->toLocal(utc) : utc;
+    return tz ? tz->toLocal(utc, &tcr) : utc;
 }
 
 void setup() {
@@ -125,7 +126,7 @@ void setup() {
     // configure time
     CONSOLE("Starting NTP client\n");
     timeClient.begin();
-    setSyncProvider(getNTPtime);
+    setSyncProvider(ntp2LocalTime);
 
     tz = determineTimeZone(tzName.get());
     CONSOLE("Timezone tz=%s\n",tz?tzName.get():"unknown");
@@ -142,14 +143,14 @@ void loop() {
     timeClient.update();
 
     if (millis()-alive > (long)ALIVE_INTERVAL){
-        CONSOLE("%s alive\n",nowStr());
+        CONSOLE("%s alive\n",nowStr(tcr->abbrev));
         alive=millis();
 
         if (!timeConfigured && WiFi.isConnected()){
             CONSOLE("%s configuring time: ",nowStr());
             if (timeClient.forceUpdate()){
-                setTime(getNTPtime());
-                CONSOLE("%s\n",nowStr());
+                setTime(ntp2LocalTime());
+                CONSOLE("%s\n",nowStr(tcr->abbrev));
                 timeConfigured = true;
             } else {
                 CONSOLE("failed\n");
