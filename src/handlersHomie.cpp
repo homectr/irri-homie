@@ -15,7 +15,7 @@ extern HomieNode* sys_node;
 extern unsigned char sys_intensity;
 extern time_t sys_disabledTill;
 
-void setDeviceProperties(){
+void sendDeviceStatus(){
     for(int i=0;i<NUMBER_OF_VALVES;i++){
         valve_node[i]->setProperty("runtime").send(String(valves[i]->getRunTime()));
         valve_node[i]->setProperty("status").send(boolStr(valves[i]->isOpen()));
@@ -24,7 +24,7 @@ void setDeviceProperties(){
     for(int i=0;i<NUMBER_OF_PROGRAMS;i++){
         prg_node[i]->setProperty("name").send(String(programs[i]->getName()));
         for(int j=0;j<7;j++){
-            String did = "day"+String(j);
+            String did = "day"+String(j+1);
             prg_node[i]->setProperty(did.c_str()).send(boolStr(programs[i]->getRunDay(j)));
         }
         for(int j=0;j<NUMBER_OF_VALVES;j++){
@@ -110,7 +110,7 @@ void onHomieEvent(const HomieEvent& event) {
       break;
     case HomieEventType::MQTT_READY:
       // Do whatever you want when MQTT is connected in normal mode
-      setDeviceProperties();
+      sendDeviceStatus();
       break;
     case HomieEventType::MQTT_DISCONNECTED:
       // Do whatever you want when MQTT is disconnected in normal mode
