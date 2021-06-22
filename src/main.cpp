@@ -31,6 +31,8 @@ Program* programs[NUMBER_OF_PROGRAMS]; // array of program objects
 
 HomieNode* sys_node;    // node for manipulating irrigation system
 
+HomieSetting<long> tzOffset("tzOffset", "Time-zone offset in seconds");
+
 unsigned char sys_intensity = 100;
 time_t sys_disabledTill = 0;
 
@@ -54,14 +56,6 @@ void setup() {
         pinMode(GPIOS[i], OUTPUT);
 
     initFS();
-
-    DEBUG_PRINT("Starting NTP client\n");
-    timeClient.begin();
-
-    // TODO: Homie settings for UTC offset
-    timeClient.setTimeOffset(7200);
-
-    setSyncProvider(getNTPtime);
 
     // create valves
     for (int i=0; i<NUMBER_OF_VALVES; i++){
@@ -116,11 +110,20 @@ void setup() {
     sys_node->advertise("intensity").setDatatype("integer").setUnit("%").settable(handleSysIntensity);
 
     Homie.onEvent(onHomieEvent);
+
+    tzOffset.setDefaultValue(3600).setValidator([] (long tzo) { return tzo > -12*3600-1 && tzo < 12*3600+1;});
+
     Homie.setup();
 
     DEBUG_PRINT("Printing program configuration\n");
     for(int i=0;i<NUMBER_OF_PROGRAMS;i++)
         programs[i]->printConfig();
+
+    // configure time
+    DEBUG_PRINT("Starting NTP client\n");
+    timeClient.begin();
+    timeClient.setTimeOffset(tzOffset.get());
+    setSyncProvider(getNTPtime);
 
 }
 

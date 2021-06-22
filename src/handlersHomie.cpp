@@ -144,7 +144,7 @@ void onHomieEvent(const HomieEvent& event) {
       break;
     case HomieEventType::SENDING_STATISTICS:
       // Do whatever you want when statistics are sent in normal mode
-      if (configSent>1) {
+      if (configSent > 0) {
           // send device configuration after one minute
           sendDeviceConfig();
       } else {
