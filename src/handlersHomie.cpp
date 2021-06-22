@@ -4,6 +4,9 @@
 #include <NTPClient.h>
 #include "utils.h"
 
+#define NODEBUG_PRINT
+#include "debug_print.h"
+
 extern Program* programs[NUMBER_OF_PROGRAMS];
 extern Valve* valves[NUMBER_OF_VALVES];
 extern const String opts;
@@ -15,7 +18,10 @@ extern HomieNode* sys_node;
 extern unsigned char sys_intensity;
 extern time_t sys_disabledTill;
 
+char statusSent = 0;
+
 void sendDeviceStatus(){
+    DEBUG_PRINT("Sending device status\n");
     for(int i=0;i<NUMBER_OF_VALVES;i++){
         valve_node[i]->setProperty("runtime").send(String(valves[i]->getRunTime()));
         valve_node[i]->setProperty("status").send(boolStr(valves[i]->isOpen()));
@@ -110,7 +116,6 @@ void onHomieEvent(const HomieEvent& event) {
       break;
     case HomieEventType::MQTT_READY:
       // Do whatever you want when MQTT is connected in normal mode
-      sendDeviceStatus();
       break;
     case HomieEventType::MQTT_DISCONNECTED:
       // Do whatever you want when MQTT is disconnected in normal mode
@@ -138,6 +143,10 @@ void onHomieEvent(const HomieEvent& event) {
       break;
     case HomieEventType::SENDING_STATISTICS:
       // Do whatever you want when statistics are sent in normal mode
+      if (!statusSent) {
+          sendDeviceStatus();
+          statusSent = 1;
+      }
       break;
   }
 }
