@@ -74,8 +74,8 @@ void setup() {
 
     // create programs
     for (int i=0; i<NUMBER_OF_PROGRAMS; i++){
-        DEBUG_PRINT("Creating program %d\n",i);
-        programs[i] = new Program(i);
+        DEBUG_PRINT("Creating program %d\n",i+1);
+        programs[i] = new Program(i+1);
         programs[i]->setOnStartCB(onProgramStart);
         programs[i]->setOnStopCB(onProgramStop);
         for (int j=0;j<NUMBER_OF_VALVES;j++) programs[i]->addValve(valves[j]);
@@ -87,7 +87,7 @@ void setup() {
 
     DEBUG_PRINT("Configuring valve properties\n");
     for(int i=0; i<NUMBER_OF_VALVES; i++){
-        valve_node[i] = new HomieNode(valves[i]->getIdStr(), valves[i]->getName(), "switch");
+        valve_node[i] = new HomieNode(valves[i]->getIdStr(), valves[i]->getName(), "valve");
         valve_node[i]->advertise("status").setName("Status").setDatatype("boolean").settable();
         valve_node[i]->advertise("runtime").setName("Manual Run Time").setDatatype("integer").setFormat("0:120").settable();
     }
@@ -95,7 +95,7 @@ void setup() {
     // create homie node for valves
     DEBUG_PRINT("Configuring program properties\n");
     for(int i=0; i<NUMBER_OF_PROGRAMS; i++){
-        prg_node[i] = new HomieNode(programs[i]->getIdStr(), programs[i]->getName(), "switch");
+        prg_node[i] = new HomieNode(programs[i]->getIdStr(), programs[i]->getName(), "program");
         prg_node[i]->advertise("status").setName("Status").setDatatype("boolean").settable();
         prg_node[i]->advertise("name").setName("Name").setDatatype("string").settable();
         prg_node[i]->advertise("starthour").setName("Start Hour").setDatatype("integer").setFormat("0:23").settable();
@@ -113,7 +113,7 @@ void setup() {
     DEBUG_PRINT("Configuring system properties\n");
     sys_node = new HomieNode("system", "Irrigation system", "irrigation");
     sys_node->advertise("dsbtill").setName("Disabled till").setDatatype("string").settable(handleSysDT);
-    sys_node->advertise("intensity").setName("Irrigation intensity").setDatatype("integer").setFormat("0:200").setUnit("%").settable(handleSysIntensity);
+    sys_node->advertise("intensity").setName("Irrigation intensity").setDatatype("integer").setUnit("%").settable(handleSysIntensity);
 
     Homie.onEvent(onHomieEvent);
     Homie.setup();
