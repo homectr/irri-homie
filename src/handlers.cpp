@@ -2,6 +2,7 @@
 #include "Program.h"
 #include "Valve.h"
 #include "utils.h"
+#include "config.h"
 
 //#define NODEBUG_PRINT
 #include "debug_print.h"
@@ -50,8 +51,7 @@ bool updateHandler(const HomieNode &node, const HomieRange &range, const String 
     if (updated) {
         if (Homie.isConnected()) node.setProperty(property).send(value);
         Homie.getLogger() << nowStr(tcr->abbrev) << " Node=" << node.getId() << " property=" << property << " set to " << value << endl;
-        // TODO
-        // save to local config
+        saveConfig();
     }
 
     return updated;

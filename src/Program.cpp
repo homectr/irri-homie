@@ -156,3 +156,10 @@ void Program::setValveName(unsigned char valve, const char* name){
     if (valveNames[valve]) free(valveNames[valve]);
     valveNames[valve] = strdup(name);
 }
+
+unsigned char Program::isConfigured(){
+    unsigned char c = 0;
+    for (int i=0; i<7; i++) c |= runDays[i];
+    for (int i=0; i<valveCount; i++) c |= runTimes[i] > 0;
+    return c;
+}

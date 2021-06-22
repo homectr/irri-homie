@@ -20,7 +20,7 @@
 #include "Program.h"
 #include "utils.h"
 
-#define NODEBUG_PRINT
+//#define NODEBUG_PRINT
 #include "debug_print.h"
 
 extern Valve* valves[NUMBER_OF_VALVES];
@@ -183,15 +183,17 @@ int saveConfig(){
     if (programs[0]) {
         JsonArray ja = jroot.createNestedArray("programs");
         for(int i=0;i<NUMBER_OF_PROGRAMS;i++){
-            JsonObject jb = ja.createNestedObject();
-            jb["start-hour"] = programs[i]->getStartHour();
-            jb["start-min"] = programs[i]->getStartMinute();
+            if (programs[i]->isConfigured()) {
+                JsonObject jb = ja.createNestedObject();
+                jb["start-hour"] = programs[i]->getStartHour();
+                jb["start-min"] = programs[i]->getStartMinute();
 
-            JsonArray ja = jb.createNestedArray("run-times");
-            for(int j=0; j<NUMBER_OF_VALVES;j++) ja.add(programs[i]->getRunTime(j));
+                JsonArray ja = jb.createNestedArray("run-times");
+                for(int j=0; j<NUMBER_OF_VALVES;j++) ja.add(programs[i]->getRunTime(j));
 
-            ja = jb.createNestedArray("run-days");
-            for(int j=0; j<7; j++) ja.add(programs[i]->getRunDay(j));
+                ja = jb.createNestedArray("run-days");
+                for(int j=0; j<7; j++) ja.add(programs[i]->getRunDay(j));
+            }
         }
     }
     
@@ -203,6 +205,10 @@ int saveConfig(){
     size_t size = serializeJson(jdoc,file);
     DEBUG_PRINT("%s Saved %d bytes\n", module, size);
     file.close();
+
+    DEBUG_PRINT("Saved: start>>\n");
+    serializeJsonPretty(jroot,Serial);
+    DEBUG_PRINT("<<end\n");
 
     return 1;
 

@@ -81,6 +81,8 @@ class Program {
         unsigned char isRunning(){return status;};
 
         void addValve(Valve* valve);
+        
+        unsigned char isConfigured();
 
         void printConfig();
 
