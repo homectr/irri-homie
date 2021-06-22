@@ -11,7 +11,6 @@ extern const unsigned char negativeOpts;
 extern HomieNode* prg_node[NUMBER_OF_PROGRAMS];
 extern HomieNode* valve_node[NUMBER_OF_VALVES];
 extern HomieNode* sys_node;
-extern NTPClient timeClient;
 
 extern unsigned char sys_intensity;
 extern time_t sys_disabledTill;
@@ -19,14 +18,14 @@ extern time_t sys_disabledTill;
 void setDeviceProperties(){
     for(int i=0;i<NUMBER_OF_VALVES;i++){
         valve_node[i]->setProperty("runtime").send(String(valves[i]->getRunTime()));
-        valve_node[i]->setProperty("status").send(valves[i]->isOpen()?"1":"0");
+        valve_node[i]->setProperty("status").send(boolStr(valves[i]->isOpen()));
     }
 
     for(int i=0;i<NUMBER_OF_PROGRAMS;i++){
         prg_node[i]->setProperty("name").send(String(programs[i]->getName()));
         for(int j=0;j<7;j++){
             String did = "day"+String(j);
-            prg_node[i]->setProperty(did.c_str()).send(programs[i]->getRunDay(j)?"1":"0");
+            prg_node[i]->setProperty(did.c_str()).send(boolStr(programs[i]->getRunDay(j)));
         }
         for(int j=0;j<NUMBER_OF_VALVES;j++){
             String vid = "valve"+String(j);
@@ -34,7 +33,7 @@ void setDeviceProperties(){
         }        
         prg_node[i]->setProperty("starthour").send(String(programs[i]->getStartHour()));
         prg_node[i]->setProperty("startmin").send(String(programs[i]->getStartMinute()));
-        prg_node[i]->setProperty("status").send(programs[i]->isRunning()?"1":"0");
+        prg_node[i]->setProperty("status").send(boolStr(programs[i]->isRunning()));
     }
 
     sys_node->setProperty("intensity").send(String(sys_intensity));
@@ -73,8 +72,6 @@ void onHomieEvent(const HomieEvent& event) {
       break;
     case HomieEventType::WIFI_CONNECTED:
       // Do whatever you want when Wi-Fi is connected in normal mode
-      timeClient.update();
-
       // You can use event.ip, event.gateway, event.mask
       break;
     case HomieEventType::WIFI_DISCONNECTED:

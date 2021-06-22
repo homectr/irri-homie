@@ -42,10 +42,10 @@ void Program::setName(const char* name){
 
 void Program::start(){
     if (valveCount == 0) {
-        CONSOLE_PGM(PSTR("Error: no valves defined for program '%s'\n"),getName());
+        CONSOLE_PGM(PSTR("Error: no valves defined for program '%s'\n"),idStr);
         return;
     }
-    DEBUG_PRINT("Starting program '%s'. Intensity %d\n",this->getName(), intensity);
+    DEBUG_PRINT("Starting program '%s'. Intensity %d\n",idStr, intensity);
     status = 1;
     currentValve = 0;
     if (onStart) onStart(id);
@@ -137,22 +137,21 @@ void Program::addValve(Valve *valve){
     DEBUG_PRINT("[addValve] prg=%d  count=%d id=%d\n",id, valveCount,valve->getIdStr());
     if (valveCount>=NUMBER_OF_VALVES) return;
     valves[valveCount] = valve;
-    String vn = name + String(" ") + valve->getName();
-    setValveName(valveCount,vn.c_str());
     valveCount++;
 }
 
 void Program::printConfig(){
-    CONSOLE("Program %d name='%s': sh=%d sm=%d\n",
+    CONSOLE("Program %d name='%s': start=%02d:%02d ",
         id,
-        getName(),
+        idStr,
         getStartHour(), 
         getStartMinute()
     );
-    CONSOLE(" Valves=\n");
-    for (int i=0; i < valveCount; i++) CONSOLE(" %d rt=%d name=%s\n",i,getRunTime(i),getValveName(i));
-    CONSOLE(" RunDays=");
-    for (int i=0; i<7; i++) CONSOLE(" %d on=%d name=%s\n",i, getRunDay(i), getRunDayName(i));
+    CONSOLE(" rt=");
+    for (int i=0; i < valveCount; i++) CONSOLE("%d,",getRunTime(i));
+    CONSOLE(" rd=");
+    for (int i=0; i<7; i++) CONSOLE("%d,", getRunDay(i));
+    CONSOLE("\n");
 
 }
 

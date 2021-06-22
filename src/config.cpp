@@ -25,9 +25,6 @@
 
 extern Valve* valves[NUMBER_OF_VALVES];
 extern Program* programs[NUMBER_OF_PROGRAMS];
-extern HomieNode* valve_node;
-extern HomieNode* prg_node;
-extern HomieNode* sys_node;
 
 extern time_t sys_disabledTill;
 extern unsigned char sys_intensity;
@@ -41,9 +38,7 @@ int initFS(){
     } else {
         DEBUG_PRINT("[init:FS] FS available\n");
     }
-
     return 1;
-
 }
 
 

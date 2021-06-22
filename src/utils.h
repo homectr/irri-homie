@@ -16,3 +16,6 @@ int dt2ISO(char* buffer, size_t size, time_t datetime, bool includeTime, const c
 
 // return current ISO date-time string
 const char* nowStr();
+
+// return true/false string
+const char* boolStr(bool value);

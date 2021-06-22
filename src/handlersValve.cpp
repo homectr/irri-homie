@@ -13,26 +13,26 @@ extern const unsigned char negativeOpts;
 extern const unsigned char GPIOS[NUMBER_OF_VALVES];
 extern HomieNode* valve_node[NUMBER_OF_VALVES];
 
-void onValveOpen(unsigned char valveId){
+void onValveOpen(unsigned char valveId, unsigned char inverse){
     DEBUG_PRINT("[onValveOpen] id=%d\n",valveId);
     if (valveId >= NUMBER_OF_VALVES) return;  // if it's not a valid range
     // switch valve on
-    digitalWrite(GPIOS[valveId], 1);
+    digitalWrite(GPIOS[valveId], !inverse);
 
     // update Homie property
-    if (Homie.isConnected()) valve_node[valveId]->setProperty("status").send("1");
+    if (Homie.isConnected()) valve_node[valveId]->setProperty("status").send(boolStr(true));
 
     Homie.getLogger() << nowStr() << " Valve " << valveId << " set to OPEN" << endl;
 }
 
-void onValveClose(unsigned char valveId){
+void onValveClose(unsigned char valveId, unsigned char inverse){
     DEBUG_PRINT("[onValveClose] id=%d\n",valveId);
     if (valveId >= NUMBER_OF_VALVES) return;  // if it's not a valid range
     // switch valve off
-    digitalWrite(GPIOS[valveId], 0);
+    digitalWrite(GPIOS[valveId], inverse);
 
     // update Homie property
-    if (Homie.isConnected()) valve_node[valveId]->setProperty("status").send("0");
+    if (Homie.isConnected()) valve_node[valveId]->setProperty("status").send(boolStr(false));
     Homie.getLogger() << nowStr() << " Valve " << valveId << " set to CLOSED" << endl;
 }
 
@@ -47,7 +47,7 @@ bool handleValveStatus(unsigned char valveIdx, const String& value) {
     if (on) valves[valveIdx]->open(); // if valve opened manually, then use default run time
     else valves[valveIdx]->close();
 
-    digitalWrite(GPIOS[valveIdx], on ? HIGH : LOW);
+    digitalWrite(GPIOS[valveIdx], on ? !valves[valveIdx]->isInverse() : valves[valveIdx]->isInverse());
 
     return true;
 }

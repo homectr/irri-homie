@@ -20,3 +20,8 @@ const char* nowStr(){
     if (millis()-lastCheck > 1000) dt2ISO(buf,25,now(),true,NULL);
     return buf;
 }
+
+const char* TrueStr = "true";
+const char* FalseStr = "false";
+
+const char* boolStr(bool v=1){return v?TrueStr:FalseStr;};

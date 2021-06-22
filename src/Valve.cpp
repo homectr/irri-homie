@@ -4,21 +4,21 @@
 #define NODEBUG_PRINT
 #include "debug_print.h"
 
-Valve::Valve(unsigned char id){
+Valve::Valve(unsigned char id, unsigned char inverse){
     this->id = id;
 
     char is[20];
     snprintf(is,20,"valve%d",id);
     idStr = strdup(is);
 
-    snprintf(is,20,"Valve %d",id);
-    name = strdup(is);
+    this->inverse = inverse;
+    status = 0;
 }
 
 void Valve::close(){
     status = 0;
     DEBUG_PRINT("Closing valve %d\n", id);
-    if (onClose) onClose(id);
+    if (onClose) onClose(id, inverse);
 }
 
 void Valve::open(unsigned int seconds, unsigned char intensity){
@@ -31,11 +31,11 @@ void Valve::open(unsigned int seconds, unsigned char intensity){
     status = 1;
     DEBUG_PRINT("Opening valve %d for %d seconds\n", id, runtime/1000);
 
-    if (onOpen) onOpen(id);
+    if (onOpen) onOpen(id, inverse);
 }
 
 void Valve::loop(){
     DEBUG_PRINT("Loop:valve id=%d status=%d\n",id, status);
-    if (status == 0) return;
+    if (!isOpen()) return;
     if (millis() - openedAt > runtime) close();
 }

@@ -1,6 +1,6 @@
 #include "handlers.h"
 
-#define NODEBUG_PRINT
+//#define NODEBUG_PRINT
 #include "debug_print.h"
 
 bool updateHandler(const HomieNode &node, const HomieRange &range, const String &property, const String &value){

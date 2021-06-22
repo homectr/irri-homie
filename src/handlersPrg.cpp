@@ -11,14 +11,14 @@ extern HomieNode* prg_node[NUMBER_OF_PROGRAMS];
 void onProgramStart(unsigned char progId){
     if (progId >= NUMBER_OF_PROGRAMS) return;
     // update Homie property
-    if (progId < NUMBER_OF_PROGRAMS && Homie.isConnected()) prg_node[progId]->setProperty("status").send("1");
+    if (progId < NUMBER_OF_PROGRAMS && Homie.isConnected()) prg_node[progId]->setProperty("status").send(boolStr(true));
     Homie.getLogger() << nowStr() << " Program " << progId << " STARTED" << endl;
 }
 
 void onProgramStop(unsigned char progId){
     if (progId >= NUMBER_OF_PROGRAMS) return;
     // update Homie property
-    if (Homie.isConnected()) prg_node[progId]->setProperty("status").send("0");
+    if (Homie.isConnected()) prg_node[progId]->setProperty("status").send(boolStr(false));
     Homie.getLogger() << nowStr() << " Program " << progId << " ENDED" << endl;
 }
 
@@ -73,7 +73,7 @@ bool handleProgramRunDays(unsigned char progId, unsigned char day, bool value){
     if (!programs[progId]->setRunDay(day, value)) return false;
     String name = "day"+String(day);
     unsigned int v = programs[progId]->getRunDay(day);
-    if (Homie.isConnected()) prg_node[progId]->setProperty(name.c_str()).send(String(v));
+    if (Homie.isConnected()) prg_node[progId]->setProperty(name.c_str()).send(boolStr(v));
     Homie.getLogger() << nowStr() << " Program " << progId << " run day " << day << " set to " << v << endl;
 
     return true;
