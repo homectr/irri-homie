@@ -18,10 +18,10 @@ extern HomieNode* sys_node;
 extern unsigned char sys_intensity;
 extern time_t sys_disabledTill;
 
-char statusSent = 0;
+char configSent = 0;
 
-void sendDeviceStatus(){
-    DEBUG_PRINT("Sending device status\n");
+void sendDeviceConfig(){
+    DEBUG_PRINT("Sending device configuration\n");
     for(int i=0;i<NUMBER_OF_VALVES;i++){
         valve_node[i]->setProperty("runtime").send(String(valves[i]->getRunTime()));
         valve_node[i]->setProperty("status").send(boolStr(valves[i]->isOpen()));
@@ -116,6 +116,7 @@ void onHomieEvent(const HomieEvent& event) {
       break;
     case HomieEventType::MQTT_READY:
       // Do whatever you want when MQTT is connected in normal mode
+      configSent = 0;
       break;
     case HomieEventType::MQTT_DISCONNECTED:
       // Do whatever you want when MQTT is disconnected in normal mode
@@ -143,9 +144,11 @@ void onHomieEvent(const HomieEvent& event) {
       break;
     case HomieEventType::SENDING_STATISTICS:
       // Do whatever you want when statistics are sent in normal mode
-      if (!statusSent) {
-          sendDeviceStatus();
-          statusSent = 1;
+      if (configSent>1) {
+          // send device configuration after one minute
+          sendDeviceConfig();
+      } else {
+        configSent++;
       }
       break;
   }
