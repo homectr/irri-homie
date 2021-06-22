@@ -28,18 +28,18 @@ void setDeviceProperties(){
             prg_node[i]->setProperty(did.c_str()).send(boolStr(programs[i]->getRunDay(j)));
         }
         for(int j=0;j<NUMBER_OF_VALVES;j++){
-            String vid = "valve"+String(j);
+            String vid = valves[j]->getIdStr() + String("rt");
             prg_node[i]->setProperty(vid.c_str()).send(String(programs[i]->getRunTime(j)));
         }        
-        prg_node[i]->setProperty("starthour").send(String(programs[i]->getStartHour()));
-        prg_node[i]->setProperty("startmin").send(String(programs[i]->getStartMinute()));
+        prg_node[i]->setProperty("startHour").send(String(programs[i]->getStartHour()));
+        prg_node[i]->setProperty("startMin").send(String(programs[i]->getStartMinute()));
         prg_node[i]->setProperty("status").send(boolStr(programs[i]->isRunning()));
     }
 
     sys_node->setProperty("intensity").send(String(sys_intensity));
     char buf[25];
     dt2ISO(buf,25,sys_disabledTill,false,NULL);
-    sys_node->setProperty("dsbtill").send(buf);
+    sys_node->setProperty("disabledTill").send(buf);
 }
 
 void onHomieEvent(const HomieEvent& event) {
