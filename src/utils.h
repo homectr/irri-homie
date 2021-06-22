@@ -1,5 +1,6 @@
 #include <time.h>
 #include <Arduino.h>
+#include <Timezone.h>
 
 /**
  * Stores date-time formatted as ISO string to provided buffer
@@ -19,3 +20,6 @@ const char* nowStr();
 
 // return true/false string
 const char* boolStr(bool value);
+
+// return time-zone offset
+Timezone* determineTimeZone(const char* tzName);

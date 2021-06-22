@@ -1,4 +1,5 @@
 #include "utils.h"
+#include <Timezone.h>
 
 #define NODEBUG_PRINT
 #include "debug_print.h"
@@ -25,3 +26,18 @@ const char* TrueStr = "true";
 const char* FalseStr = "false";
 
 const char* boolStr(bool v=1){return v?TrueStr:FalseStr;};
+
+Timezone* determineTimeZone(const char* tzName){
+    Timezone *tz = NULL;
+    if (strcmp_P(tzName,PSTR("US/Eastern")) == 0) {
+        TimeChangeRule tcrDST = {"EDT", Second, Sun, Mar, 2, -240};  //UTC - 4 hours
+        TimeChangeRule tcrSTD = {"EST", First, Sun, Nov, 2, -300};   //UTC - 5 hours
+        tz = new Timezone(tcrDST, tcrSTD);
+    }
+    if (strcmp_P(tzName,PSTR("Europe/Berlin")) == 0) {
+        TimeChangeRule tcrDST = {"CEST", Last, Sun, Mar, 1, +120};  //UTC + 2 hours
+        TimeChangeRule tcrSTD = {"CET", Last, Sun, Oct, 1, +60};   //UTC + 1 hours
+        tz = new Timezone(tcrDST, tcrSTD);
+    }
+    return tz;
+}

@@ -1,6 +1,7 @@
 #include <Homie.h>
 #include <errno.h>
 #include <NTPClient.h>
+#include <Timezone.h>
 
 #include "settings.h"
 #include "Valve.h"
@@ -31,7 +32,7 @@ Program* programs[NUMBER_OF_PROGRAMS]; // array of program objects
 
 HomieNode* sys_node;    // node for manipulating irrigation system
 
-HomieSetting<long> tzOffset("tzOffset", "Time-zone offset in seconds");
+HomieSetting<const char*> tzName("timezone", "Time-zone e.g. Europe/Berlin");
 
 unsigned char sys_intensity = 100;
 time_t sys_disabledTill = 0;
@@ -40,12 +41,14 @@ bool configLoaded = false;
 bool timeConfigured = false;
 
 WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, "pool.ntp.org", 3600);
+NTPClient timeClient(ntpUDP, "pool.ntp.org", 0);
+Timezone* tz;
 
 time_t getNTPtime(){
     DEBUG_PRINT("%lu Syncing time ", millis());
     DEBUG_PRINT("%s\n",timeClient.getFormattedTime().c_str());
-    return timeClient.getEpochTime();
+    time_t utc = timeClient.getEpochTime();
+    return tz ? tz->toLocal(utc) : utc;
 }
 
 void setup() {
@@ -111,7 +114,7 @@ void setup() {
 
     Homie.onEvent(onHomieEvent);
 
-    tzOffset.setDefaultValue(3600).setValidator([] (long tzo) { return tzo > -12*3600-1 && tzo < 12*3600+1;});
+    tzName.setDefaultValue("Europe/Berlin").setValidator([] (const char* tz) { return strcmp_P(tz,PSTR("Europe/Berlin")) == 0;});
 
     Homie.setup();
 
@@ -120,10 +123,12 @@ void setup() {
         programs[i]->printConfig();
 
     // configure time
-    DEBUG_PRINT("Starting NTP client\n");
+    CONSOLE("Starting NTP client\n");
     timeClient.begin();
-    timeClient.setTimeOffset(tzOffset.get());
     setSyncProvider(getNTPtime);
+
+    tz = determineTimeZone(tzName.get());
+    CONSOLE("Timezone tz=%s\n",tz?tzName.get():"unknown");
 
 }
 
@@ -143,7 +148,7 @@ void loop() {
         if (!timeConfigured && WiFi.isConnected()){
             CONSOLE("%s configuring time: ",nowStr());
             if (timeClient.forceUpdate()){
-                setTime(timeClient.getEpochTime());
+                setTime(getNTPtime());
                 CONSOLE("%s\n",nowStr());
                 timeConfigured = true;
             } else {
