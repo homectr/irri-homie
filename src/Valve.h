@@ -13,9 +13,6 @@ class Valve {
         // valve identifier for mqtt
         char *idStr = NULL;
 
-        // valve name
-        char *name = NULL;
-
         // valve status
         unsigned char status = 0;
 
@@ -69,7 +66,6 @@ class Valve {
         unsigned int getRunTime(){return defRunTime;};
 
         const char* getIdStr(){return idStr;};
-        const char* getName(){return name;};
 
         unsigned char isInverse(){return inverse;};
 

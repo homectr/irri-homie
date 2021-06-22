@@ -65,8 +65,8 @@ void setup() {
 
     // create valves
     for (int i=0; i<NUMBER_OF_VALVES; i++){
-        DEBUG_PRINT("Creating valve %d\n",i);
-        valves[i] = new Valve(i);
+        DEBUG_PRINT("Creating valve %d\n",i+1);
+        valves[i] = new Valve(i+1);
         valves[i]->close();
         valves[i]->setOnOpenCB(onValveOpen);
         valves[i]->setOnCloseCB(onValveClose);
@@ -87,33 +87,33 @@ void setup() {
 
     DEBUG_PRINT("Configuring valve properties\n");
     for(int i=0; i<NUMBER_OF_VALVES; i++){
-        valve_node[i] = new HomieNode(valves[i]->getIdStr(), valves[i]->getName(), "valve");
-        valve_node[i]->advertise("status").setName("Status").setDatatype("boolean").settable();
-        valve_node[i]->advertise("runtime").setName("Manual Run Time").setDatatype("integer").setFormat("0:120").settable();
+        valve_node[i] = new HomieNode(valves[i]->getIdStr(), valves[i]->getIdStr(), "valve");
+        valve_node[i]->advertise("status").setDatatype("boolean").settable();
+        valve_node[i]->advertise("runtime").setDatatype("integer").setFormat("0:120").settable();
     }
 
     // create homie node for valves
     DEBUG_PRINT("Configuring program properties\n");
     for(int i=0; i<NUMBER_OF_PROGRAMS; i++){
-        prg_node[i] = new HomieNode(programs[i]->getIdStr(), programs[i]->getName(), "program");
-        prg_node[i]->advertise("status").setName("Status").setDatatype("boolean").settable();
-        prg_node[i]->advertise("name").setName("Name").setDatatype("string").settable();
-        prg_node[i]->advertise("starthour").setName("Start Hour").setDatatype("integer").setFormat("0:23").settable();
-        prg_node[i]->advertise("startmin").setName("Start Minute").setDatatype("integer").setFormat("0:59").settable();
+        prg_node[i] = new HomieNode(programs[i]->getIdStr(), programs[i]->getIdStr(), "program");
+        prg_node[i]->advertise("status").setDatatype("boolean").settable();
+        prg_node[i]->advertise("name").setDatatype("string").settable();
+        prg_node[i]->advertise("startHour").setDatatype("integer").setFormat("0:23").settable();
+        prg_node[i]->advertise("startMin").setDatatype("integer").setFormat("0:59").settable();
         for(int j=0;j<7;j++){
-            String did = "day"+String(j);
-            prg_node[i]->advertise(did.c_str()).setName(programs[i]->getRunDayName(j)).setDatatype("boolean").settable();
+            String did = "day"+String(j+1);
+            prg_node[i]->advertise(did.c_str()).setDatatype("boolean").settable();
         }
         for(int j=0;j<NUMBER_OF_VALVES;j++){
             String vid = valves[j]->getIdStr() + String("rt");
-            prg_node[i]->advertise(vid.c_str()).setName(programs[i]->getValveName(j)).setDatatype("integer").setFormat("0:120").settable();
+            prg_node[i]->advertise(vid.c_str()).setDatatype("integer").setFormat("0:120").settable();
         }
     }
     
     DEBUG_PRINT("Configuring system properties\n");
     sys_node = new HomieNode("system", "Irrigation system", "irrigation");
-    sys_node->advertise("dsbtill").setName("Disabled till").setDatatype("string").settable(handleSysDT);
-    sys_node->advertise("intensity").setName("Irrigation intensity").setDatatype("integer").setUnit("%").settable(handleSysIntensity);
+    sys_node->advertise("disabledTill").setDatatype("string").settable(handleSysDT);
+    sys_node->advertise("intensity").setDatatype("integer").setUnit("%").settable(handleSysIntensity);
 
     Homie.onEvent(onHomieEvent);
     Homie.setup();

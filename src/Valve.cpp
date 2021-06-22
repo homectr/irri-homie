@@ -11,9 +11,6 @@ Valve::Valve(unsigned char id, unsigned char inverse){
     snprintf(is,20,"valve%d",id);
     idStr = strdup(is);
 
-    snprintf(is,20,"Valve %d",id);
-    name = strdup(is);
-
     this->inverse = inverse;
     status = 0;
 }
