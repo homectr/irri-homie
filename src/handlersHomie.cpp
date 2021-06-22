@@ -28,13 +28,12 @@ void sendDeviceConfig(){
     }
 
     for(int i=0;i<NUMBER_OF_PROGRAMS;i++){
-        prg_node[i]->setProperty("name").send(String(programs[i]->getName()));
         for(int j=0;j<7;j++){
             String did = "day"+String(j+1);
             prg_node[i]->setProperty(did.c_str()).send(boolStr(programs[i]->getRunDay(j)));
         }
         for(int j=0;j<NUMBER_OF_VALVES;j++){
-            String vid = valves[j]->getIdStr() + String("rt");
+            String vid = String("rt") + valves[j]->getIdStr();
             prg_node[i]->setProperty(vid.c_str()).send(String(programs[i]->getRunTime(j)));
         }        
         prg_node[i]->setProperty("startHour").send(String(programs[i]->getStartHour()));

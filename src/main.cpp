@@ -15,6 +15,7 @@
 #include "handlersSys.h"
 #include "handlersHomie.h"
 #include "utils.h"
+
 #define NODEBUG_PRINT
 #include "debug_print.h"
 
@@ -103,13 +104,13 @@ void setup() {
             prg_node[i]->advertise(did.c_str()).setDatatype("boolean").settable();
         }
         for(int j=0;j<NUMBER_OF_VALVES;j++){
-            String vid = valves[j]->getIdStr() + String("rt");
+            String vid = String("rt") + valves[j]->getIdStr();
             prg_node[i]->advertise(vid.c_str()).setDatatype("integer").setFormat("0:120").settable();
         }
     }
     
     DEBUG_PRINT("Configuring system properties\n");
-    sys_node = new HomieNode("system", "Irrigation system", "irrigation");
+    sys_node = new HomieNode("system", "Irrigation system", "device");
     sys_node->advertise("disabledTill").setDatatype("string").settable(handleSysDT);
     sys_node->advertise("intensity").setDatatype("integer").setUnit("%").settable(handleSysIntensity);
 

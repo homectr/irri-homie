@@ -15,9 +15,6 @@ Program::Program(unsigned char id){
     snprintf(is,20,"prg%d",id);
     idStr = strdup(is);
 
-    snprintf(is,20,"Program %d",id);
-    name = strdup(is);
-
     valveCount = 0;
 
     // set default program run-time to 0 min
@@ -26,18 +23,8 @@ Program::Program(unsigned char id){
         valveNames[i] = NULL;
     }
 
-    for (int i=0;i<7;i++){
-        String rn = name + String(" ") + dayStr(i+1);
-        setRunDayName(i, rn.c_str());
-    }
-
     currentValve = 0;
     status = 0;
-}
-
-void Program::setName(const char* name){
-    free(this->name);
-    this->name = strdup(name);
 }
 
 void Program::start(){
@@ -169,12 +156,3 @@ void Program::setValveName(unsigned char valve, const char* name){
     if (valveNames[valve]) free(valveNames[valve]);
     valveNames[valve] = strdup(name);
 }
-
-void Program::setRunDayName(unsigned char day, const char* name){
-    if (runDayNames[day]) free(runDayNames[day]);
-    runDayNames[day] = strdup(name);
-
-};
-const char* Program::getRunDayName(unsigned char day){
-    return day<7 ? runDayNames[day] : NULL;
-};

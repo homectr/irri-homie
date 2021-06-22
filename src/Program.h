@@ -15,9 +15,6 @@ class Program {
         // program identifer for mqtt
         char* idStr = NULL;
 
-        // program name - default is "Program {id}"
-        char* name = NULL;
-
         // program starting hour
         unsigned char startHour = 6;
 
@@ -32,9 +29,6 @@ class Program {
 
         // which days of a week should program run, starting with Sunday
         unsigned char runDays[7] = {0,0,0,0,0,0,0};
-
-        // array containing runday names - for Homie
-        char* runDayNames[7] = {NULL,NULL,NULL,NULL,NULL,NULL,NULL};
 
         // array of pointers to valves
         Valve* valves[NUMBER_OF_VALVES];
@@ -66,9 +60,6 @@ class Program {
         void stop();
         void loop();
 
-        void setName(const char *name);
-        const char* getName(){return name;};
-
         void setStart(unsigned char hour, unsigned char minute){startHour = hour; startMin = minute;};
         unsigned char getStartHour(){return startHour;};
         unsigned char getStartMinute(){return startMin;};
@@ -81,9 +72,6 @@ class Program {
 
         unsigned char setRunDay(unsigned char day, bool status);
         unsigned char getRunDay(unsigned char day);
-
-        void setRunDayName(unsigned char day, const char* name);
-        const char* getRunDayName(unsigned char day);
 
         void setIntensity(unsigned char i){intensity = i;};
         void setOnStartCB(program_cb_t cb){onStart = cb;};

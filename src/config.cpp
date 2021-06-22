@@ -108,8 +108,6 @@ int loadConfig() {
         }
 
         CONSOLE_PGM(PSTR("%s   Program %d "), module, i);
-        programs[i]->setName(prg[F("name")] | String("Program "+String(i)).c_str());
-
         CONSOLE(" rt=");
         int ii=0;
         for (JsonVariant vrt: prg[F("run-times")].as<JsonArray>()){
@@ -186,7 +184,6 @@ int saveConfig(){
         JsonArray ja = jroot.createNestedArray("programs");
         for(int i=0;i<NUMBER_OF_PROGRAMS;i++){
             JsonObject jb = ja.createNestedObject();
-            jb["name"] = programs[i]->getName();
             jb["start-hour"] = programs[i]->getStartHour();
             jb["start-min"] = programs[i]->getStartMinute();
 
