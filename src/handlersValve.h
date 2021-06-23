@@ -2,9 +2,10 @@
 
 #include <Arduino.h>
 #include <Homie.h>
+#include <Valve.h>
 
-void onValveOpen(unsigned char valveId, unsigned char inverse);
-void onValveClose(unsigned char valveId, unsigned char inverse);
+void onValveOpen(Valve* valve);
+void onValveClose(Valve* valve);
 
 bool handleValveStatus(unsigned char valveIdx, const String& value);
 bool handleValveRT(const HomieRange& range, const String& value);

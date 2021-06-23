@@ -1,10 +1,13 @@
 #pragma once
 
 #include <TimeLib.h>
+#include <Homie.h>
 #include "settings.h"
 #include "Valve.h" 
 
-using program_cb_t = void(*)(unsigned char programId);
+class Program;
+
+using program_cb_t = void(*)(Program* program);
 
 class Program {
 
@@ -48,6 +51,9 @@ class Program {
         // callback to be called when program stops
         program_cb_t onStop = NULL;
 
+        // Homie node
+        HomieNode* homie = NULL;
+
     public:
         Program(unsigned char id);
 
@@ -80,6 +86,7 @@ class Program {
 
         void printConfig();
 
-        
+        void setHomie(HomieNode* node){homie = node;}
+        inline HomieNode* getHomie(){return homie;}
 
 };

@@ -1,6 +1,8 @@
 #include <time.h>
 #include <Arduino.h>
 #include <Timezone.h>
+#include "Program.h"
+#include "Valve.h"
 
 /**
  * Stores date-time formatted as ISO string to provided buffer
@@ -24,3 +26,9 @@ const char* boolStr(bool value);
 
 // return time-zone offset
 Timezone* determineTimeZone(const char* tzName);
+
+// find program by id
+Program* findProgramById(const char* id);
+
+// find valve by id
+Valve* findValveById(const char* id);

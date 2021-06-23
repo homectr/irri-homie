@@ -4,6 +4,9 @@
 #define NODEBUG_PRINT
 #include "debug_print.h"
 
+extern Program* programs[NUMBER_OF_PROGRAMS];
+extern Valve* valves[NUMBER_OF_VALVES];
+
 int dt2ISO(char* buffer, size_t size, time_t dt, bool includeTime, const char* tz){
     if (size < 11) return 0;
     snprintf(buffer,size,"%04d-%02d-%02d",year(dt),month(dt),day(dt));
@@ -47,4 +50,26 @@ Timezone* determineTimeZone(const char* tzName){
         tz = new Timezone(dst, std);
     }    
     return tz;
+}
+
+Program* findProgramById(const char* id){
+    Program* p = NULL;
+    for(int i=0; i<NUMBER_OF_PROGRAMS; i++)
+        if (strcmp(programs[i]->getIdStr(),id)==0){
+            p = programs[i];
+            break;
+        }
+    return p;
+}
+
+// find valve by id
+Valve* findValveById(const char* id){
+    Valve* v = NULL;
+    for(int i=0; i<NUMBER_OF_VALVES;i++){
+        if (strcmp(valves[i]->getIdStr(),id)==0){
+            v = valves[i];
+            break;
+        }
+    }
+    return v;
 }

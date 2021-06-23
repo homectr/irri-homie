@@ -1,9 +1,13 @@
 #pragma once
 
-using valve_cb_t = void(*)(unsigned char valveId, unsigned char inverse);
+#include <Homie.h>
+
+class Valve;
+
+using valve_cb_t = void(*)(Valve* valve);
 
 class Valve {
-    private:
+    protected:
         // valve identifier
         unsigned char id;
 
@@ -28,6 +32,8 @@ class Valve {
         valve_cb_t onOpen = NULL;
         valve_cb_t onClose = NULL;
 
+        HomieNode* homie;
+
     public:
         Valve(unsigned char id, unsigned char inverse=0);
 
@@ -37,7 +43,7 @@ class Valve {
          * 
          * @param seconds - number of seconds to keep valve open (max. 7200)
          */
-        void open(unsigned int seconds, unsigned char intensity);
+        virtual void open(unsigned int seconds, unsigned char intensity);
 
         inline void open(unsigned int seconds){open(seconds, (unsigned char)100);};
 
@@ -45,13 +51,13 @@ class Valve {
         inline void open(){open(defRunTime, (unsigned char)100);};
 
         // close valve
-        void close();
+        virtual void close();
 
         // is valve open?
         unsigned char isOpen(){return status;};
 
         // valve handler - has to be called
-        void loop();
+        virtual void loop();
 
         // set valve onOpen callback
         void setOnOpenCB(valve_cb_t cb){onOpen = cb;};
@@ -69,4 +75,17 @@ class Valve {
 
         unsigned char isInverse(){return inverse;};
 
+        void setHomie(HomieNode *node){homie = node;}
+        HomieNode* getHomie(){return homie;}
+
+};
+
+class GPIOValve: public Valve {
+    protected:
+        unsigned char gpio;
+
+    public:
+        GPIOValve(unsigned char id, unsigned char gpio, unsigned char inverse=0);
+        virtual void open(unsigned int seconds, unsigned char intensity);
+        virtual void close();
 };

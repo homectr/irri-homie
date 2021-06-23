@@ -3,18 +3,17 @@
 #include "utils.h"
 
 extern TimeChangeRule* tcr;
-extern HomieNode* prg_node[NUMBER_OF_PROGRAMS];
 
-void onProgramStart(unsigned char progId){
-    if (progId >= NUMBER_OF_PROGRAMS) return;
+void onProgramStart(Program *prg){
+    if (!prg) return;
     // update Homie property
-    if (progId < NUMBER_OF_PROGRAMS && Homie.isConnected()) prg_node[progId]->setProperty("status").send(boolStr(true));
-    Homie.getLogger() << nowStr(tcr->abbrev) << " Program " << progId << " STARTED" << endl;
+    if (Homie.isConnected()) prg->getHomie()->setProperty("status").send(boolStr(true));
+    Homie.getLogger() << nowStr(tcr->abbrev) << " Program " << prg->getIdStr() << " STARTED" << endl;
 }
 
-void onProgramStop(unsigned char progId){
-    if (progId >= NUMBER_OF_PROGRAMS) return;
+void onProgramStop(Program* prg){
+    if (!prg) return;
     // update Homie property
-    if (Homie.isConnected()) prg_node[progId]->setProperty("status").send(boolStr(false));
-    Homie.getLogger() << nowStr(tcr->abbrev) << " Program " << progId << " ENDED" << endl;
+    if (Homie.isConnected()) prg->getHomie()->setProperty("status").send(boolStr(false));
+    Homie.getLogger() << nowStr(tcr->abbrev) << " Program " << prg->getIdStr() << " ENDED" << endl;
 }

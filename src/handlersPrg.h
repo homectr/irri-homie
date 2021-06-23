@@ -2,9 +2,10 @@
 
 #include <Arduino.h>
 #include <Homie.h>
+#include "Program.h"
 
-void onProgramStart(unsigned char progId);
-void onProgramStop(unsigned char progId);
+void onProgramStart(Program* program);
+void onProgramStop(Program* program);
 
 bool handleProgramStatus(unsigned char progId, const String& value);
 bool handleProgramName(unsigned char progId, const String& value);

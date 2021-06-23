@@ -11,8 +11,6 @@ extern Program* programs[NUMBER_OF_PROGRAMS];
 extern Valve* valves[NUMBER_OF_VALVES];
 extern const String opts;
 extern const unsigned char negativeOpts;
-extern HomieNode* prg_node[NUMBER_OF_PROGRAMS];
-extern HomieNode* valve_node[NUMBER_OF_VALVES];
 extern HomieNode* sys_node;
 
 extern unsigned char sys_intensity;
@@ -23,15 +21,15 @@ char configSent = 0;
 void sendDeviceConfig(){
     DEBUG_PRINT("Sending device configuration\n");
     for(int i=0;i<NUMBER_OF_VALVES;i++){
-        valve_node[i]->setProperty("runtime").send(String(valves[i]->getRunTime()));
-        valve_node[i]->setProperty("status").send(String(boolStr(valves[i]->isOpen())));
+        valves[i]->getHomie()->setProperty("runtime").send(String(valves[i]->getRunTime()));
+        valves[i]->getHomie()->setProperty("status").send(String(boolStr(valves[i]->isOpen())));
     }
 
     for(int i=0;i<NUMBER_OF_PROGRAMS;i++){
         for(int j=0;j<7;j++){
             String did = "day"+String(j+1);
             DEBUG_PRINT("Sending prog=%d day=%d v=%s ",i,j,boolStr(programs[i]->getRunDay(j)));
-            uint16_t ret = prg_node[i]->setProperty(did).send(String(boolStr(programs[i]->getRunDay(j))));
+            uint16_t ret = programs[i]->getHomie()->setProperty(did).send(String(boolStr(programs[i]->getRunDay(j))));
             DEBUG_PRINT(" Ret=%d\n",ret);
         }
         delay(10); // artificial delay - otheriwse packets might bet lost
@@ -39,14 +37,14 @@ void sendDeviceConfig(){
         for(int j=0;j<NUMBER_OF_VALVES;j++){
             String vid = String("rt") + valves[j]->getIdStr();
             DEBUG_PRINT("Sending prog=%d valve=%d id=%s, v=%d ",i,j,vid.c_str(), programs[i]->getRunTime(j));
-            uint16_t ret = prg_node[i]->setProperty(vid).send(String(programs[i]->getRunTime(j)));
+            uint16_t ret = programs[i]->getHomie()->setProperty(vid).send(String(programs[i]->getRunTime(j)));
             DEBUG_PRINT(" Ret=%d\n",ret);
         }
         delay(10); // artificial delay - otheriwse packets might bet lost
 
-        prg_node[i]->setProperty("startHour").send(String(programs[i]->getStartHour()));
-        prg_node[i]->setProperty("startMin").send(String(programs[i]->getStartMinute()));
-        prg_node[i]->setProperty("status").send(String(boolStr(programs[i]->isRunning())));
+        programs[i]->getHomie()->setProperty("startHour").send(String(programs[i]->getStartHour()));
+        programs[i]->getHomie()->setProperty("startMin").send(String(programs[i]->getStartMinute()));
+        programs[i]->getHomie()->setProperty("status").send(String(boolStr(programs[i]->isRunning())));
         delay(10); // artificial delay - otheriwse packets might bet lost
     }
 
