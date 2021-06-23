@@ -95,6 +95,7 @@ void setup() {
     DEBUG_PRINT("Configuring program properties\n");
     for(int i=0; i<NUMBER_OF_PROGRAMS; i++){
         prg_node[i] = new HomieNode(programs[i]->getIdStr(), programs[i]->getIdStr(), "program");
+        DEBUG_PRINT("  program=%s",programs[i]->getIdStr());
         prg_node[i]->advertise("status").setDatatype("boolean").settable();
         prg_node[i]->advertise("name").setDatatype("string").settable();
         prg_node[i]->advertise("startHour").setDatatype("integer").setFormat("0:23").settable();
@@ -102,11 +103,14 @@ void setup() {
         for(int j=0;j<7;j++){
             String did = "day"+String(j+1);
             prg_node[i]->advertise(did.c_str()).setDatatype("boolean").settable();
+            DEBUG_PRINT(" %s",did.c_str());
         }
         for(int j=0;j<NUMBER_OF_VALVES;j++){
             String vid = String("rt") + valves[j]->getIdStr();
             prg_node[i]->advertise(vid.c_str()).setDatatype("integer").setFormat("0:120").settable();
+            DEBUG_PRINT(" %s",vid.c_str());
         }
+        DEBUG_PRINT("\n");
     }
     
     DEBUG_PRINT("Configuring system properties\n");
@@ -121,8 +125,10 @@ void setup() {
     Homie.setup();
 
     DEBUG_PRINT("Printing program configuration\n");
-    for(int i=0;i<NUMBER_OF_PROGRAMS;i++)
+    for(int i=0;i<NUMBER_OF_PROGRAMS;i++){
         programs[i]->printConfig();
+        DEBUG_PRINT("Node=%s\n",prg_node[i]->getId());
+    }
 
     // configure time
     CONSOLE("Starting NTP client\n");

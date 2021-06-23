@@ -24,27 +24,36 @@ void sendDeviceConfig(){
     DEBUG_PRINT("Sending device configuration\n");
     for(int i=0;i<NUMBER_OF_VALVES;i++){
         valve_node[i]->setProperty("runtime").send(String(valves[i]->getRunTime()));
-        valve_node[i]->setProperty("status").send(boolStr(valves[i]->isOpen()));
+        valve_node[i]->setProperty("status").send(String(boolStr(valves[i]->isOpen())));
     }
 
     for(int i=0;i<NUMBER_OF_PROGRAMS;i++){
         for(int j=0;j<7;j++){
             String did = "day"+String(j+1);
-            prg_node[i]->setProperty(did.c_str()).send(boolStr(programs[i]->getRunDay(j)));
+            DEBUG_PRINT("Sending prog=%d day=%d v=%s ",i,j,boolStr(programs[i]->getRunDay(j)));
+            uint16_t ret = prg_node[i]->setProperty(did).send(String(boolStr(programs[i]->getRunDay(j))));
+            DEBUG_PRINT(" Ret=%d\n",ret);
         }
+        delay(10); // artificial delay - otheriwse packets might bet lost
+
         for(int j=0;j<NUMBER_OF_VALVES;j++){
             String vid = String("rt") + valves[j]->getIdStr();
-            prg_node[i]->setProperty(vid.c_str()).send(String(programs[i]->getRunTime(j)));
-        }        
+            DEBUG_PRINT("Sending prog=%d valve=%d id=%s, v=%d ",i,j,vid.c_str(), programs[i]->getRunTime(j));
+            uint16_t ret = prg_node[i]->setProperty(vid).send(String(programs[i]->getRunTime(j)));
+            DEBUG_PRINT(" Ret=%d\n",ret);
+        }
+        delay(10); // artificial delay - otheriwse packets might bet lost
+
         prg_node[i]->setProperty("startHour").send(String(programs[i]->getStartHour()));
         prg_node[i]->setProperty("startMin").send(String(programs[i]->getStartMinute()));
-        prg_node[i]->setProperty("status").send(boolStr(programs[i]->isRunning()));
+        prg_node[i]->setProperty("status").send(String(boolStr(programs[i]->isRunning())));
+        delay(10); // artificial delay - otheriwse packets might bet lost
     }
 
     sys_node->setProperty("intensity").send(String(sys_intensity));
     char buf[25];
     dt2ISO(buf,25,sys_disabledTill,false,NULL);
-    sys_node->setProperty("disabledTill").send(buf);
+    sys_node->setProperty("disabledTill").send(String(buf));
 }
 
 void onHomieEvent(const HomieEvent& event) {
