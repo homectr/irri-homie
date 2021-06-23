@@ -167,7 +167,7 @@ int saveConfig(){
 
     if (err){
         CONSOLE_PGM(PSTR("%s invalid configuration file. error=%s\n"), module, err.c_str());
-        return 0;
+        // FIXME ignoring error and writing config anyway...
     }    
     
     DEBUG_PRINT("%s Preparing local config\n", module);
