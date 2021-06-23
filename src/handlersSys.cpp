@@ -15,7 +15,7 @@ bool handleSysIntensity(const HomieRange& range, const String& value){
     sys_intensity = i;
     if (Homie.isConnected()) sys_node->setProperty("intensity").send(String(i));
 
-    Homie.getLogger() << "Intensity set to" << i << endl;
+    Homie.getLogger() << "Intensity set to " << i << endl;
 
     return saveConfig();;
 }
