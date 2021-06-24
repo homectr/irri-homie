@@ -20,13 +20,15 @@
 #include "Program.h"
 #include "utils.h"
 
-//#define NODEBUG_PRINT
+#define NODEBUG_PRINT
 #include "debug_print.h"
 
 extern Valve* valves[NUMBER_OF_VALVES];
 extern Program* programs[NUMBER_OF_PROGRAMS];
 
 extern time_t sys_disabledTill;
+extern char sys_disabledTillStr[25];
+
 extern unsigned char sys_intensity;
 
 //------------ FS
@@ -150,6 +152,7 @@ int loadConfig() {
         // read disabled till
         time_t i = jroot[F("disabled-till")] | 0;
         sys_disabledTill = i;
+        dt2ISO(sys_disabledTillStr,25,sys_disabledTill,false,NULL);
         CONSOLE_PGM(PSTR("%s   Disabled till=%d\n"), module, i);
     }
     
@@ -198,7 +201,7 @@ int saveConfig(){
     }
     
     jroot["intensity"] = sys_intensity;
-    jroot["disabled-till"] = sys_disabledTill;  
+    jroot["disabled-till"] = sys_disabledTill;
 
     DEBUG_PRINT("%s Saving local config file=%s\n", module, f);
     file = BOARD_FS.open(f,"w");

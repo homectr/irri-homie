@@ -33,6 +33,7 @@ HomieSetting<const char*> tzName("timezone", "Time-zone e.g. Europe/Berlin");
 
 unsigned char sys_intensity = 100;
 time_t sys_disabledTill = 0;
+char sys_disabledTillStr[25];
 
 bool configLoaded = false;
 bool timeConfigured = false;
@@ -113,8 +114,8 @@ void setup() {
     
     DEBUG_PRINT("Configuring system properties\n");
     sys_node = new HomieNode("system", "Irrigation system", "device");
-    sys_node->advertise("disabledTill").setDatatype("string").settable(handleSysDT);
-    sys_node->advertise("intensity").setDatatype("integer").setUnit("%").settable(handleSysIntensity);
+    sys_node->advertise("disabledTill").setDatatype("integer").settable(handleSysDT);
+    sys_node->advertise("intensity").setDatatype("integer").setFormat("0:200").settable(handleSysIntensity);
 
     Homie.onEvent(onHomieEvent);
 
@@ -175,7 +176,7 @@ void loop() {
             for (int i=0;i<NUMBER_OF_PROGRAMS;i++) 
                 if (programs[i]) programs[i]->loop();
         } else {
-            CONSOLE("Programs disabled till %ld\n", sys_disabledTill );
+            CONSOLE("Programs disabled till %ld %s\n", sys_disabledTill, sys_disabledTillStr );
         }
         DEBUG_PRINT("Checking end\n");
 
