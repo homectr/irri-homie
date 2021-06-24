@@ -209,10 +209,11 @@ int saveConfig(){
     DEBUG_PRINT("%s Saved %d bytes\n", module, size);
     file.close();
 
+    #ifndef NODEBUG_PRINT
     DEBUG_PRINT("Saved: start>>\n");
     serializeJsonPretty(jroot,Serial);
     DEBUG_PRINT("<<end\n");
+    #endif
 
     return 1;
-
 }
