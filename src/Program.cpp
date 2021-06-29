@@ -34,7 +34,7 @@ void Program::start(){
     DEBUG_PRINT("Starting program '%s'. Intensity %d\n",idStr, intensity);
     status = 1;
     currentValve = 0;
-    if (onStart) onStart(id);
+    if (onStart) onStart(this);
 
     // open the first valve having non-zero run time
     for (int v=0; v < valveCount;v++)
@@ -52,7 +52,7 @@ void Program::stop(){
     // close all valves on program stop
     for (int i = 0; i < valveCount;i++) 
         valves[i]->close();
-    if (onStop) onStop(id);
+    if (onStop) onStop(this);
 
 }
 
