@@ -50,6 +50,25 @@ bool updateHandler(const HomieNode &node, const HomieRange &range, const String 
 
     }
 
+    if (strcmp_P(node.getType(),PSTR("valve")) == 0){
+        Valve* valve = findValveById(node.getId());
+        if (!valve) return false;
+
+        if (property == "runtime"){
+            unsigned int rt = value.toInt();
+            rt = rt > 3600 ? 3600 : rt;
+            valve->setRunTime(rt);
+            updated = true;
+        }
+
+        if (property == "status"){
+            if (value == "true") valve->open();
+            else valve->close();
+            updated = true;
+        }
+
+    }
+
     if (updated) {
         if (Homie.isConnected()) node.setProperty(property).send(value);
         Homie.getLogger() << nowStr(tcr->abbrev) << " Node=" << node.getId() << " property=" << property << " set to " << value << endl;
