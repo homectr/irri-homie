@@ -87,12 +87,18 @@ class Program {
          * Sets runtime for specified valve.
          * 
          * @param valve - valve number
-         * @param runtime - valve runtime in minutes
+         * @param runtime - valve runtime in seconds
          */
         unsigned char setRunTime(unsigned char valve, unsigned int runtime);
 
-        // Returns runtime of specified valve (in minutes)
+        // Sets runtime of specified valve (in minutes)
+        unsigned char setRunTimeMin(unsigned char valve, unsigned int runtime){setRunTime(valve,runtime*60);};
+
+        // Returns runtime of specified valve (in seconds)
         unsigned int getRunTime(unsigned char valve);
+
+        // Returns runtime of specified valve (in minutes)
+        unsigned int getRunTimeMin(unsigned char valve){return getRunTime(valve)/60;};
 
         /**
          * Toggles specified day of week.

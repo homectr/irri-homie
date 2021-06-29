@@ -115,7 +115,7 @@ unsigned char Program::setRunDay(unsigned char day, bool status){
 unsigned char Program::setRunTime(unsigned char valve, unsigned int runtime){
     DEBUG_PRINT("[setRunTime] prg=%d valve=%d rt=%d\n",id,valve,runtime);
     if (valve >= valveCount) return 0;
-    runTimes[valve] = runtime*60;
+    runTimes[valve] = runtime;
     return 1;
 }
 
@@ -143,7 +143,7 @@ void Program::printConfig(){
 
 unsigned int Program::getRunTime(unsigned char valve){
     DEBUG_PRINT("[getRT] prg=%d cnt=%d valve=%d\n",id, valveCount, valve);
-    return valve<valveCount ? runTimes[valve]/60 : 0;
+    return valve<valveCount ? runTimes[valve] : 0;
 };
 
 unsigned char Program::getRunDay(unsigned char day){

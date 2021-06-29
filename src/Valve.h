@@ -78,13 +78,19 @@ class Valve {
         // set valve default runtime in seconds
         void setRunTime(unsigned int seconds){defRunTime = seconds;};
 
-        // get default runtime for manual start
+        // set valve default runtime in minutes
+        void setRunTimeMin(unsigned int minutes){defRunTime = minutes*60;};
+
+        // get default runtime for manual start (in seconds)
         unsigned int getRunTime(){return defRunTime;};
+
+        // get default runtime for manual start (in minutes)
+        unsigned int getRunTimeMin(){return defRunTime/60;};
 
         // get valve identifier
         const char* getIdStr(){return idStr;};
 
-        // set Homie node responsible for this valve
+        // set Homie node representing for this valve
         void setHomie(HomieNode *node){homie = node;}
         HomieNode* getHomie(){return homie;}
 
