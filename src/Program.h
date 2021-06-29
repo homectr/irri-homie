@@ -87,11 +87,11 @@ class Program {
          * Sets runtime for specified valve.
          * 
          * @param valve - valve number
-         * @param runtime - valve runtime in seconds
+         * @param runtime - valve runtime in minutes
          */
         unsigned char setRunTime(unsigned char valve, unsigned int runtime);
 
-        // Returns runtime of specified valve (in seconds)
+        // Returns runtime of specified valve (in minutes)
         unsigned int getRunTime(unsigned char valve);
 
         /**
