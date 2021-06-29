@@ -4,14 +4,12 @@
 #define NODEBUG_PRINT
 #include "debug_print.h"
 
-Valve::Valve(unsigned char id, unsigned char inverse){
+Valve::Valve(unsigned char id){
     this->id = id;
 
     char is[20];
     snprintf(is,20,"valve%d",id);
     idStr = strdup(is);
-
-    this->inverse = inverse;
     status = 0;
 }
 
@@ -40,8 +38,9 @@ void Valve::loop(){
     if (millis() - openedAt > runtime) close();
 }
 
-GPIOValve::GPIOValve(unsigned char id, unsigned char gpio, unsigned char inverse):Valve(id, inverse){
+GPIOValve::GPIOValve(unsigned char id, unsigned char gpio, unsigned char inverse):Valve(id){
     this->gpio = gpio;
+    this->inverse = inverse;
 }
 
 void GPIOValve::open(unsigned int seconds, unsigned char intensity){

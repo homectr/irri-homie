@@ -11,9 +11,6 @@ class Valve {
         // valve identifier
         unsigned char id;
 
-        // if inverse, then status==1 => closed
-        unsigned char inverse = 0;
-
         // valve identifier for mqtt
         char *idStr = NULL;
 
@@ -35,16 +32,29 @@ class Valve {
         HomieNode* homie;
 
     public:
-        Valve(unsigned char id, unsigned char inverse=0);
+        /**
+         * Create valve
+         * 
+         * @param id - valve identifier - used as Homie parameter
+         */
+        Valve(unsigned char id);
+
+        /**
+         * Opens valve for specified time (in seconds) multiplied by intensity. 
+         * Valve closes automatically afterwards
+         * 
+         * @param seconds - number of seconds to keep valve open (max. 7200)
+         * @param intensity - percentage seconds multiplier: 0-200; 100=100%
+         */
+        virtual void open(unsigned int seconds, unsigned char intensity);
 
         /**
          * Opens valve for specified time (in seconds). 
+         * Intensity is 100.
          * Valve closes automatically afterwards
          * 
          * @param seconds - number of seconds to keep valve open (max. 7200)
          */
-        virtual void open(unsigned int seconds, unsigned char intensity);
-
         inline void open(unsigned int seconds){open(seconds, (unsigned char)100);};
 
         // open valve for time specified in default runtime
@@ -65,27 +75,47 @@ class Valve {
         // set valve onClose callback
         void setOnCloseCB(valve_cb_t cb){onClose = cb;};
 
-        // set valve default runtime
+        // set valve default runtime in seconds
         void setRunTime(unsigned int seconds){defRunTime = seconds;};
 
         // get default runtime for manual start
         unsigned int getRunTime(){return defRunTime;};
 
+        // get valve identifier
         const char* getIdStr(){return idStr;};
 
-        unsigned char isInverse(){return inverse;};
-
+        // set Homie node responsible for this valve
         void setHomie(HomieNode *node){homie = node;}
         HomieNode* getHomie(){return homie;}
 
 };
 
+/**
+ * GPIO/pin managed valve
+ */
 class GPIOValve: public Valve {
     protected:
+        // gpio managing valve
         unsigned char gpio;
 
+        // if inverse, then gpio set to 1 will close valve
+        unsigned char inverse = 0;
+
     public:
+        /**
+         * Create GIOValve object.
+         * 
+         * @param id - valve id, used as Homie node identifier
+         * @param gpio - gpio number
+         * @param inverse - gpio will be handled in inverse mode. Default = 0/no
+         */
         GPIOValve(unsigned char id, unsigned char gpio, unsigned char inverse=0);
+
         virtual void open(unsigned int seconds, unsigned char intensity);
+
         virtual void close();
+
+        // is valve in inverse mode?
+        unsigned char isInverse(){return inverse;};
+
 };
