@@ -154,6 +154,9 @@ unsigned char Program::getRunDay(unsigned char day){
 unsigned char Program::isConfigured(){
     unsigned char c = 0;
     for (int i=0; i<7; i++) c |= runDays[i];
-    for (int i=0; i<valveCount; i++) c |= runTimes[i] > 0;
+    if (c) {
+        c = 0;
+        for (int i=0; i<valveCount; i++) c |= runTimes[i] > 0;
+    }
     return c;
 }

@@ -4,7 +4,7 @@
 #include "utils.h"
 #include "config.h"
 
-//#define NODEBUG_PRINT
+#define NODEBUG_PRINT
 #include "debug_print.h"
 
 extern TimeChangeRule* tcr;
@@ -13,6 +13,7 @@ extern Valve* valves[NUMBER_OF_VALVES];
 
 bool updateHandler(const HomieNode &node, const HomieRange &range, const String &property, const String &value){
     bool updated = false;
+    String newValue = value;
     DEBUG_PRINT("[updateHandler] node=%s pro=%s value=%s\n",node.getId(), property.c_str(), value.c_str());
 
     if (strcmp_P(node.getType(),PSTR("program")) == 0){
@@ -22,28 +23,36 @@ bool updateHandler(const HomieNode &node, const HomieRange &range, const String 
         if (property.startsWith(F("day"))){
             unsigned char dayIdx = property.charAt(3)-'1';
             program->setRunDay(dayIdx,value=="true");
+            newValue = boolStr(program->getRunDay(dayIdx));
             updated = true;
         }
         if (property.startsWith(F("rtvalve"))){
             unsigned char valveIdx = property.charAt(7)-'1';
             unsigned int rt = value.toInt();
-            program->setRunTime(valveIdx, rt);
+            rt = rt > 120 ? 120 : rt; // max 2 hours
+            program->setRunTimeMin(valveIdx, rt);
+            newValue = String(program->getRunTimeMin(valveIdx));
             updated = true;
         }
 
         if (property == "startHour"){
-            program->setStart(value.toInt(),program->getStartMinute());
+            unsigned char h = value.toInt();
+            program->setStart(h,program->getStartMinute());
+            newValue = String(h);
             updated = true;
         }
 
         if (property == "startMin"){
-            program->setStart(program->getStartHour(), value.toInt());
+            unsigned char m = value.toInt();
+            program->setStart(program->getStartHour(), m);
+            newValue = String(m);
             updated = true;
         }
 
         if (property == "status"){
             if (value == "true") program->start();
             else program->stop();
+            newValue = boolStr(program->isRunning());
             updated = true;
         }
 
@@ -56,22 +65,24 @@ bool updateHandler(const HomieNode &node, const HomieRange &range, const String 
 
         if (property == "runtime"){
             unsigned int rt = value.toInt();
-            rt = rt > 3600 ? 3600 : rt;
-            valve->setRunTime(rt);
+            rt = rt > 120 ? 120 : rt; // max 2 hours
+            valve->setRunTimeMin(rt);
+            newValue = valve->getRunTimeMin();
             updated = true;
         }
 
         if (property == "status"){
             if (value == "true") valve->open();
             else valve->close();
+            newValue = boolStr(valve->isOpen());
             updated = true;
         }
 
     }
 
     if (updated) {
-        if (Homie.isConnected()) node.setProperty(property).send(value);
-        Homie.getLogger() << nowStr(tcr->abbrev) << " Node=" << node.getId() << " property=" << property << " set to " << value << endl;
+        if (Homie.isConnected()) node.setProperty(property).send(newValue);
+        Homie.getLogger() << nowStr(tcr->abbrev) << " Node=" << node.getId() << " property=" << property << " set to " << newValue << endl;
         saveConfig();
     }
 
