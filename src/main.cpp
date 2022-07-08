@@ -83,7 +83,7 @@ void setup()
       programs[i]->addValve(valves[j]);
   }
 
-  Homie_setFirmware("Irrigation", "1.0.0");
+  Homie_setFirmware("Irrigation", "1.0.1");
   Homie.setGlobalInputHandler(updateHandler);
   Homie.setLedPin(15, 1);
 
