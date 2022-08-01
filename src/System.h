@@ -6,32 +6,33 @@
 #include "Program.h"
 #include "Valve.h"
 
-struct ProgramListEntry {
-    Program* prg;
-    ProgramListEntry* next;
+struct ProgramListEntry
+{
+  Program *prg;
+  ProgramListEntry *next;
 };
 
-struct ValveListEntry {
-    Valve* valve;
-    ValveListEntry* next;
+struct ValveListEntry
+{
+  Valve *valve;
+  ValveListEntry *next;
 };
 
-class System {
+class System
+{
 
-    private:
-        ValveListEntry* valves;
-        ProgramListEntry* programs;
+private:
+  ValveListEntry *valves;
+  ProgramListEntry *programs;
 
-        unsigned char intensity = 100;
-        time_t disabledTill = 0;
+  unsigned char intensity = 100;
+  time_t disabledTill = 0;
 
-    public:
-        void loadConfig();
+public:
+  void loadConfig();
 
-        void addValve(Valve* valve);
-        Valve* getValve(unsigned char idx);
-        void addProgram(Program* valve);
-        Valve* getProgram(unsigned char idx);
-
-
+  void addValve(Valve *valve);
+  Valve *getValve(unsigned char idx);
+  void addProgram(Program *valve);
+  Valve *getProgram(unsigned char idx);
 };
